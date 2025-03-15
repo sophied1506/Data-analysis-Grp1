@@ -4,22 +4,140 @@ format: html
 editor: visual
 ---
 
-## Introduction
-
-Obesity rates blah blah blah...
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r}
-1 + 1
-```
-
-You can add options to executable code like this
-
 ```{r}
 #| echo: false
-2 * 2
+#| warning: false
+#| message: false
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tidymodels)
+library(sjPlot)
+library(performance)
+library(kableExtra)
+library(gt)
+library(tidyr)
+library(ggplot2)
+library(moderndive)
+library(sjPlot)
+library(tidymodels)
+library(broom)
+library(performance)
+library(faraway)
+library(palmerpenguins)
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+# Introduction {#sec-intro}
+
+Obesity rates have been rising all over the world over the past decades. It has been found that obesity is linked and can impact cardiovascular health and cause other diseases. This paper investigates how the prevelance of obesity has changed over the years (2013-2016) and whether gender affects this.
+
+# Exploratory Analysis {#sec-EA}
+
+We first look at the disparity in proportions of obesity by sex
+
+```{r}
+#| label: fig-1
+#| fig-cap: barchart of proportion of individuals of each sex are obese
+df<-read.csv("DAProject3.csv")
+df$Sex<-as.factor(df$Sex)
+df$Obese<-as.factor(df$Obese)
+ggplot(df, aes(x = Obese, group = Sex)) +
+    geom_bar(aes(y = after_stat(prop), fill = Sex), 
+             stat = "count", position = "dodge") +
+    labs(y = "Proportion", fill = "Sex")+
+  ggtitle("Obesity Rate by Sex")
+
+```
+
+It Seems like women are slightly more likely to be obese than men, but whether this changes over the years is what needs to be investigated.
+
+```{r}
+#| label: fig-2
+#| fig-cap: box plot of obesity over the years
+
+ggplot(data = df,
+       aes(x = Obese, group = as.factor(Year)))+
+  geom_bar(aes(y = after_stat(prop), fill = as.factor(Year)), 
+             stat = "count", position = "dodge")
+
+
+```
+
+From this plot there doesn't appear to be much of a change in Obesity over the years, but we should further investigate this.
+
+# Formal Analysis {sec-formal}
+
+We first look at the disparity in proportions of obesity by sex
+
+```{r}
+#| label: fig-1
+#| fig-cap: barchart of proportion of individuals of each sex are obese
+df<-read.csv("DAProject3.csv")
+df$Sex<-as.factor(df$Sex)
+df$Obese<-as.factor(df$Obese)
+ggplot(df, aes(x = Obese, group = Sex)) +
+    geom_bar(aes(y = after_stat(prop), fill = Sex), 
+             stat = "count", position = "dodge") +
+    labs(y = "Proportion", fill = "Sex")+
+  ggtitle("Obesity Rate by Sex")
+
+```
+
+It Seems like women are slightly more likely to be obese than men, but whether this changes over the years is what needs to be investigated.
+
+```{r}
+#| label: fig-2
+#| fig-cap: box plot of obesity over the years
+
+ggplot(data = df,
+       aes(x = Obese, group = as.factor(Year)))+
+  geom_bar(aes(y = after_stat(prop), fill = as.factor(Year)), 
+             stat = "count", position = "dodge")
+
+
+```
+
+From this plot there doesn't appear to be much of a change in Obesity over the years, but we should further investigate this.
+
+# Formal Analysis {#sec-FA}
+
+We fit a logistic regression model
+$$
+Obese \sim Bernoulli(p_i)
+$$
+Where $p_i$ is the probability of being obese
+
+$$
+logit(p_i)=\alpha+\beta_{year}\cdot year+\beta_{male}\cdot \mathbb{I}_{male}
+$$
+Where
+
+$$
+\mathbb{I}_{male} = \begin{cases} 1~~~~~~~~~~~\text{if person is male}
+\\ 0~~~~~~~~~~~~~~~text{otherwise}
+$$
+```{r}
+#| label: tbl-sum
+#| tbl-cap: Summary Table
+model <- glm(Obese ~ Sex+Year, data = df,family = binomial)
+model %>% broom::tidy()%>% gt()
+```
+
+As predicted from our plots. Obesity rate hasn't changed over the years, so should be remved from the model. However, it seems that the log-odds of Obesity decreases by 0.112 if they are male.
+
+```{r}
+plot_model(model,
+           type = "pred",
+           terms = "Sex",
+           axis.title = c("Sex", 
+                          "Prob. of being obese"),
+           title = " ")
+```
+
+```{r}
+plot_model(model, 
+           type = "pred", 
+           title = "", 
+           terms="Year", 
+           axis.title = c("year", "Prob. of obesity"))
+```

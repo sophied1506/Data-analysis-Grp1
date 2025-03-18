@@ -111,6 +111,11 @@ ggplot(data = df,
   facet_wrap(df$Obese)
 
 
+ggplot(data = df,
+       aes(x=Obese, y = Year))+
+  geom_boxplot()+
+  labs(x="Obese", y="Year", title="Obesity Rates over the Years")
+
 ```
 
 From this plot there doesn't appear to be much of a change in Obesity over the years, but we should further investigate this.

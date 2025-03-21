@@ -1,0 +1,37 @@
+---
+title: "Has Scottish Obesity Prevalence Changed over the Years and do Different Factors Effect this"
+author: "Jo Scott-Stephen" "Eleanor Mills" "Sophie Brown"
+execute: 
+  echo: false
+  eval: true
+number-sections: true
+format:
+  html:
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tidymodels)
+library(sjPlot)
+library(performance)
+library(kableExtra)
+library(gt)
+```
+
+# Introduction {#sec-intro}
+
+# Exploratory Analysis {#sec-EA}
+
+# Formal Analysis {#sec-FA}
+
+# Conclusions {#sec-con}
+
+

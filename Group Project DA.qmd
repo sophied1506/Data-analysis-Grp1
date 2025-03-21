@@ -1,6 +1,6 @@
 ---
 title: "Has Scottish Obesity Prevalence Changed over the Years and do Different Factors Effect this"
-author: "Jo Scott-Stephen" "Eleanor Mills" "Sophie Brown"
+author: "Jo Scott-Stephen, Eleanor Mills, Sophie Brown"
 execute: 
   echo: false
   eval: true
@@ -16,6 +16,7 @@ editor_options:
 #| echo: false
 #| warning: false
 #| message: false
+
 library(ggplot2)
 library(dplyr)
 library(tidyr)
@@ -24,6 +25,8 @@ library(sjPlot)
 library(performance)
 library(kableExtra)
 library(gt)
+
+Obesity <- read.csv("DAProject3.csv")
 ```
 
 # Introduction {#sec-intro}
@@ -31,8 +34,8 @@ library(gt)
 # Exploratory Analysis {#sec-EA}
 
 ```{r}
-#| label: obesity-prop
-#| fig-id: fig-obesity.v.year
+#| label: fig-fig1
+#| fig-cap: "Proportion of Obesity by Year"
 
 proportions <- Obesity |>
   group_by(Year, Obese) |>
@@ -40,17 +43,17 @@ proportions <- Obesity |>
   group_by(Year) |>
   mutate(Proportion = Count/sum(Count))
 
+
 ggplot(proportions, aes(x = factor(Year), y = Proportion, fill = Obese)) +
   geom_bar(stat = "identity", position = "fill") +
-  labs(title = "Proportion of Obesity (Yes/No) by Year",
+  labs(title = "Proportion of Obesity by Year",
        x = "Year",
        y = "Proportion",
        fill = "Obesity") +
   theme_minimal()
-
-
-
 ```
+
+From @fig-fig1 there is very little difference in the proportion of people whoa re Obese as the years change.
 
 # Formal Analysis {#sec-FA}
 

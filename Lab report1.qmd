@@ -225,6 +225,12 @@ $$
 #| tbl-cap: Summary Table
 model <- glm(Obese ~ Sex + Year + FV + AgeGroup + Employment, data = df, family = binomial)
 model %>% broom::tidy()%>% gt()
+AIC(model)
+
+
+mod1 <- glm(Obese ~ Year, data = df, family = binomial)
+mod1 %>% broom::tidy()%>% gt()
+AIC(mod1)
 ```
 
 As predicted from our plots. Obesity rate hasn't changed over the years, so should be remved from the model. However, it seems that the log-odds of Obesity decreases by 0.112 (find new value now changed) if they are male.

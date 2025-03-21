@@ -1,5 +1,6 @@
 ---
 title: "Lab Report 1"
+author: ""
 execute: 
   echo: false
   eval: true
@@ -36,108 +37,125 @@ library(palmerpenguins)
 
 # Introduction {#sec-intro}
 
-Obesity rates have been rising all over the world over the past decades. It has been found that obesity is linked and can impact cardiovascular health and cause other diseases. This paper investigates how the prevelance of obesity has changed over the years (2013-2016) and whether gender, age group or other lifestyle choices affect this.
+Obesity rates have been rising all over the world over the past decades. It has been found that obesity is linked and can impact cardiovascular health and cause other diseases. This paper investigates how the prevelance of obesity has changed over the years (2013-2016) in Scotland and whether gender, age group or other lifestyle choices affect this.
+
+Our two questions of interest are:
+
+-   Has the prevalence of obesity in Scotland changed over the given years of the Scottish Health Survey?
+
+-   Are there any differences in obesity by age, gender, socio-economic status or lifestyle factors?
 
 # Exploratory Analysis {#sec-EA}
 
 We first look at the disparity in proportions of obesity by sex
 
 ```{r}
-#| label: fig-1
-#| fig-cap: barchart of proportion of individuals of each sex are obese
-df<-read.csv("DAProject3.csv")
-df$Sex<-as.factor(df$Sex)
-df$AgeGroup<-as.factor(df$AgeGroup)
-df$Veg<-as.factor(df$Veg)
-df$Fruit<-as.factor(df$Fruit)
-df$Obese<-as.factor(df$Obese)
-df$Employment<-as.factor(df$Employment)
-ggplot(df, aes(x = Obese, group = Sex)) +
-    geom_bar(aes(y = after_stat(prop), fill = Sex), 
-             stat = "count", position = "dodge") +
-    labs(x="Obesity Status", y = "Proportion", fill = "Sex")+
-  ggtitle("Obesity Rate by Sex")
+#| echo: false
 
+df <- read.csv("DAProject3.csv")
 
-
-ggplot(df, aes(x = Fruit, group = Obese)) +
-    geom_bar(aes(y = after_stat(prop), fill = Obese), 
-             stat = "count", position = "dodge") +
-    labs(x="Eating Recommended Fruit", y = "Proportion", fill = "Obesity Status")+
-  ggtitle("Obesity Rate by Fruit")
-
-
-
-ggplot(df, aes(x = Obese, group = Veg)) +
-    geom_bar(aes(y = after_stat(prop), fill = Veg), 
-             stat = "count", position = "dodge") +
-    labs(x="Obesity Status", y = "Proportion", fill = "Eating Recommended Veg")+
-  ggtitle("Obesity Rate by Veg")
-
-df$FV<-as.factor(ifelse(df$Fruit=="Yes"&df$Veg=="Yes", "Yes", "No"))
-
-ggplot(df, aes(x = Obese, group = FV)) +
-    geom_bar(aes(y = after_stat(prop), fill = FV), 
-             stat = "count", position = "dodge") +
-    labs(x="Obesity Status", y = "Proportion", fill = "Eating Recommended Fruit and Veg")+
-  ggtitle("Obesity Rate by Fruit Veg")
-
-ggplot(df, aes(x = AgeGroup, group = Obese)) +
-    geom_bar(aes(y = after_stat(prop), fill = Obese), 
-             stat = "count", position = "dodge") +
-    labs(x="AgeGroup", y = "Proportion", fill = "Obesity Status")+
-  ggtitle("Obesity Rate by Age Group")
-
-ggplot(df, aes(x = Obese, group = Employment)) +
-    geom_bar(aes(y = after_stat(prop), fill = Employment), 
-             stat = "count", position = "dodge") +
-    labs(x="Obesity Status", y = "Proportion", fill = "Employment Status")+
-  ggtitle("Obesity Rate by Employment Status")
+df$Sex <- as.factor(df$Sex)
+df$AgeGroup <- as.factor(df$AgeGroup)
+df$Veg <- as.factor(df$Veg)
+df$Fruit <- as.factor(df$Fruit)
+df$Obese <- as.factor(df$Obese)
+df$Employment <- as.factor(df$Employment)
 
 ```
 
-It seems like women are slightly more likely to be obese and slightly less likely to not be obese, than men, but whether this changes over the years is what needs to be investigated.
+```{r}
+ggplot(df, aes(x = Sex, fill = Obese)) + 
+  geom_bar(position = "fill") + 
+  labs(title = "Obesity by Sex")
 
+ggplot(df, aes(x = Year, fill = Obese)) + 
+  geom_bar(position = "fill") + 
+  labs(title = "Obesity Over Time", y = "Proportion")
+
+ggplot(df, aes(x = AgeGroup, fill = Obese)) + 
+  geom_bar(position = "fill") + 
+  labs(title = "Obesity by Age Group")
+
+ggplot(df, aes(x = Employment, fill = Obese)) + 
+  geom_bar(position = "fill") + 
+  labs(title = "Obesity by Employment Status") +
+  guides(x = guide_axis(angle = 35))
+
+ggplot(df, aes(x = Veg, fill = Obese)) + 
+  geom_bar(position = "fill") + 
+  labs(title = "Obesity by Vegetable Intake") 
+
+ggplot(df, aes(x = Fruit, fill = Obese)) + 
+  geom_bar(position = "fill") + 
+  labs(title = "Obesity by Fruit Intake") 
+
+```
 
 ```{r}
+#| echo: false
+#| label: fig-1
+#| fig-cap: barchart of proportion of individuals of each sex are obese
+
+ggplot(df, aes(x = Obese, group = Sex)) +
+    geom_bar(aes(y = after_stat(prop), fill = Sex), 
+             stat = "count", position = "dodge") +
+    labs(x = "Obesity Status", y = "Proportion", fill = "Sex")+
+  ggtitle("Obesity Rate by Sex")
+```
+
+From @fig-1 it appears that women are more likely to be obese by men. However we can see that this difference is very small and may not be significant.
+
+*It seems like women are slightly more likely to be obese and slightly less likely to not be obese, than men, but whether this changes over the years is what needs to be investigated.*
+
+```{r}
+#| echo: false
 #| label: fig-2
 #| fig-cap: bar plot of obesity over the years
 
 ggplot(data = df,
-       aes(x = Year))+
+       aes(x = Year)) +
   geom_bar(aes(y = after_stat(prop), 
-             stat = "count"), position = "dodge")+
-  labs(x="Year", y="Proportion", title="Obesity Rates over the Years")+
+             stat = "count"), position = "dodge") +
+  labs(x = "Year", 
+       y = "Proportion", 
+       title = "Obesity Rates over the Years") +
   facet_wrap(df$Obese)
-
-
-ggplot(data = df,
-       aes(x=Obese, y = Year))+
-  geom_boxplot()+
-  labs(x="Obese", y="Year", title="Obesity Rates over the Years")
-
 ```
 
-From this plot there doesn't appear to be much of a change in Obesity over the years, but we should further investigate this.
+From @fig-2 we can see that obesity rates are fairly consistant across the years. his plot there doesn't appear to be much of a change in Obesity over the years, but we should further investigate this.
 
 ```{r}
+ggplot(data = df,
+       aes(x = Obese, y = Year))+
+  geom_boxplot()+
+  labs(x = "Obese", 
+       y = "Year", 
+       title = "Obesity Rates over the Years")
+```
+
+```{r}
+#| echo: false
 #| label: fig-3
 #| fig-cap: bar plot of obesity over the years
-
-
 
 ggplot(data = df,
        aes(x = Year, group = Obese))+
   geom_bar(aes(y = after_stat(prop), fill = Obese, 
              stat = "count"), position = "dodge")+
-  labs(x="Year", y="Proportion", title="Obesity Rates over the Years", fill="Obesity Status")+
+  labs(x = "Year",
+       y = "Proportion", 
+       title = "Obesity Rates over the Years", 
+       fill = "Obesity Status")+
   facet_wrap(df$Fruit)
 
 ggplot(data = df,
        aes(x = Year, group = Obese))+
   geom_bar(aes(y = after_stat(prop), fill = Obese, 
              stat = "count"), position = "dodge")+
-  labs(x="Year", y="Proportion", title="Obesity Rates over the Years", fill="Obesity Status")+
+  labs(x = "Year", 
+       y = "Proportion", 
+       title = "Obesity Rates over the Years", 
+       fill = "Obesity Status")+
   facet_wrap(df$Veg)
 
 
@@ -145,43 +163,75 @@ ggplot(data = df,
        aes(x = Year, group = Obese))+
   geom_bar(aes(y = after_stat(prop), fill = Obese, 
              stat = "count"), position = "dodge")+
-  labs(x="Year", y="Proportion", title="Obesity Rates over the Years", fill="Obesity Status")+
+  labs(x = "Year", 
+       y = "Proportion", 
+       title = "Obesity Rates over the Years", 
+       fill = "Obesity Status")+
   facet_wrap(df$FV)
-
-
 
 ```
 
+
+```{r}
+#| echo: false
+df <- df %>%
+  mutate(Employment_Clean = ifelse(Employment == "Retired", "Retired",
+                            ifelse(Employment %in% c("In employment, self-employed or on gov't training", "In full-time education"), "Employed", "Unemployed")))
+
+df$Employment_Clean <- as.factor(df$Employment_Clean)
+
+table(df$Employment_Clean)
+```
 
 
 
 # Formal Analysis {#sec-FA}
 
-We fit a logistic regression model
-$$
+We fit a logistic regression model $$
 Obese \sim Bernoulli(p_i)
-$$
-Where $p_i$ is the probability of being obese
+$$ Where $p_i$ is the probability of being obese
 
 $$
-logit(p_i)=\alpha+\beta_{year}\cdot year+\beta_{male}\cdot \mathbb{I}_{male}
-$$
-Where
+logit(p_i)= \alpha + \beta_{\text{male}}\cdot\mathbb{I}_{\text{male}} + \beta_{\text{year}}\cdot\text{year} + \beta_{\text{fv}}\cdot\text{fv} + \beta_{\text{age}}\cdot\text{age} + \beta_{employment}\cdot\text{employment}
+$$ 
+
+where
+
+-   $\alpha$ is the intercept,
+
+-   $\beta_\text{male}$ is the coefficient for sex,
+
+-   $\beta_\text{year}$ is the coefficient for year,
+
+-   $\beta_\text{fv}$ is the coefficient for whether an individual consumes the daily intake of either fruit or vegetables or both,
+
+-   $\beta_\text{year}$ is the coefficient for age,
+
+-   $\beta_\text{year}$ is the coefficient for employment status
+
+-   $\mathbb{I}_{\text{sex}}(x)$ is an indicator function such that
+
 
 $$
-\mathbb{I}_{male} = \begin{cases} 1~~~~~~~~~~~\text{if person is male}
-\\ 0~~~~~~~~~~~~~~~text{otherwise}
+\mathbb{I}_{\mbox{male}}(x) =
+\begin{cases}
+1 & \mbox{If gender of } x \mbox{ is male}, \\
+0 & \mbox{If gender of } x \mbox{ is female}.
+\end{cases}
 $$
+
 ```{r}
 #| label: tbl-sum
 #| tbl-cap: Summary Table
-model <- glm(Obese ~ Sex+Year+FV+Fruit+Veg+AgeGroup+Employment, data = df,family = binomial)
+model <- glm(Obese ~ Sex + Year + FV + AgeGroup + Employment, data = df, family = binomial)
 model %>% broom::tidy()%>% gt()
 ```
 
-As predicted from our plots. Obesity rate hasn't changed over the years, so should be remved from the model. However, it seems that the log-odds of Obesity decreases by 0.112 if they are male.
+As predicted from our plots. Obesity rate hasn't changed over the years, so should be remved from the model. However, it seems that the log-odds of Obesity decreases by 0.112 (find new value now changed) if they are male.
 
 ```{r}
+#| echo: false
+#| eval: false
 plot_model(model,
            type = "pred",
            terms = "Sex",
@@ -191,6 +241,8 @@ plot_model(model,
 ```
 
 ```{r}
+#| echo: false
+#| eval: false
 plot_model(model, 
            type = "pred", 
            title = "", 
@@ -199,6 +251,8 @@ plot_model(model,
 ```
 
 ```{r}
+#| echo: false
+#| eval: false
 plot_model(model,
            type = "pred",
            terms = "AgeGroup",
@@ -208,6 +262,8 @@ plot_model(model,
 ```
 
 ```{r}
+#| echo: false
+#| eval: false
 plot_model(model,
            type = "pred",
            terms = "Employment",
@@ -216,17 +272,20 @@ plot_model(model,
            title = " ")
 ```
 
-
 ```{r}
+#| echo: false
+#| eval: false
 plot_model(model,
            type = "pred",
            terms = "Fruit",
-           axis.title = c("Fruit", 
-                          "Prob. of being obese"),
+           labs(x = "Fruit", 
+                y = "Prob. of being obese"),
            title = " ")
 ```
 
 ```{r}
+#| echo: false
+#| eval: false
 plot_model(model,
            type = "pred",
            terms = "Veg",
@@ -236,6 +295,8 @@ plot_model(model,
 ```
 
 ```{r}
+#| echo: false
+#| eval: false
 plot_model(model,
            type = "pred",
            terms = "FV",
@@ -250,6 +311,5 @@ check_model(model, panel = TRUE)
 ```
 
 Binned residuals indicates fit inadequate
-
 
 shockingly cllinearity betweeen fruit veg and fv is only moderate... probs should just include either FV or Fruit and Veg- maybe check AICs

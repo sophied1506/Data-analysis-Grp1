@@ -30,8 +30,28 @@ library(gt)
 
 # Exploratory Analysis {#sec-EA}
 
+```{r}
+#| label: obesity-prop
+#| fig-id: fig-obesity.v.year
+
+proportions <- Obesity |>
+  group_by(Year, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(Year) |>
+  mutate(Proportion = Count/sum(Count))
+
+ggplot(proportions, aes(x = factor(Year), y = Proportion, fill = Obese)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs(title = "Proportion of Obesity (Yes/No) by Year",
+       x = "Year",
+       y = "Proportion",
+       fill = "Obesity") +
+  theme_minimal()
+
+
+
+```
+
 # Formal Analysis {#sec-FA}
 
 # Conclusions {#sec-con}
-
-

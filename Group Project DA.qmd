@@ -1,7 +1,6 @@
-
 ---
 title: "Has Scottish Obesity Prevalence Changed over the Years and do Different Factors Effect this"
-author: "Jo Scott-Stephen" "Eleanor Mills" "Sophie Brown"
+author: "Jo Scott-Stephen, Eleanor Mills, Sophie Brown"
 execute: 
   echo: false
   eval: true
@@ -36,13 +35,126 @@ df$Veg<-as.factor(df$Veg)
 df$Fruit<-as.factor(df$Fruit)
 df$Obese<-as.factor(df$Obese)
 df$Employment<-as.factor(df$Employment)
+
 df$Employment_Clean<-as.factor(ifelse(df$Employment=="In full-time education"|df$Employment=="In paid employment, self-employed or on gov't training", "Employed/Full-Time Training or Education",ifelse(df$Employment=="Retired", "Retired", "Unemployed/Other")))
+
 df$FV<-as.factor(ifelse(df$Fruit=="Yes"|df$Veg=="Yes", "Yes", "No"))
 ```
 
 # Introduction {#sec-intro}
 
 # Exploratory Analysis {#sec-EA}
+
+```{r}
+#| label: fig-obesityyear
+#| fig-cap: Proportion of obesity by Year
+proportionsyear <- df |>
+  group_by(Year, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(Year) |>
+  mutate(Proportion = Count/sum(Count))
+
+ggplot(proportionsyear, aes(x = factor(Year), y = Proportion, fill = Obese)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs(title = "Proportion of Obesity (Yes/No) by Year",
+       x = "Year",
+       y = "Proportion",
+       fill = "Obesity") +
+  theme_minimal()
+
+```
+
+can see from the graph in @fig-obesityyear
+
+
+
+```{r}
+#| label: fig-age
+#| fig-cap: proportion of obesity separated into each age category
+
+proportionsage <- df |>
+  group_by(AgeGroup, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(AgeGroup) |>
+  mutate(Proportion = Count/sum(Count))
+  
+
+ggplot(proportionsage, aes(x = AgeGroup, y = Proportion, fill = Obese)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs(title = "Proportion of Obesity (Yes/No) by Age",
+       x = "Age",
+       y = "Proportion",
+       fill = "Obesity") +
+  theme_minimal()
+```
+
+can see from @fig-age
+
+```{r}
+#| label: fig-gender
+#| fig-cap: proportion of obesity by gender
+proportionsgender <- df |>
+  group_by(Sex, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(Sex) |>
+  mutate(Proportion = Count/sum(Count))
+
+ggplot(proportionsgender, aes(x = Sex, y = Proportion, fill = Obese)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs(title = "Proportion of Obesity (Yes/No) by Sex",
+       x = "Sex",
+       y = "Proportion",
+       fill = "Obesity") +
+  theme_minimal()
+```
+
+can see from @fig-gender
+
+
+```{r}
+#| label: fig-social
+#| fig-cap: proportion of obesity by employment type
+
+
+proportionssocial <- df |>
+  group_by(Employment_Clean, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(Employment_Clean) |>
+  mutate(Proportion = Count/sum(Count))
+
+ggplot(proportionssocial, aes(x = Employment_Clean, y = Proportion, fill = Obese)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs(title = "Proportion of Obesity (Yes/No) by Employment Type",
+       x = "Employment Type",
+       y = "Proportion",
+       fill = "Obesity") +
+  guides(x= guide_axis(angle = 25))
+```
+
+we can see from @fig-social
+
+```{r}
+
+#| label: fig-FV
+#| fig-cap: The proportion of obesity vs if people consumed enough fruit or veg
+proportionsFV <- df |>
+  group_by(FV, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(FV) |>
+  mutate(Proportion = Count/sum(Count))
+
+ggplot(proportionsFV, aes(x= FV, y= Proportion, fill = Obese))+
+  geom_bar(stat = "identity", postition = "fill")+
+  labs(title = "Proportion of Obesity (Yes/No) by Fruit and Veg intake",
+       x = "Fruit and Veg Intake (Yes/No)",
+       y = "Proportion",
+       fill = "Obesity")
+
+
+```
+
+
+
 
 # Formal Analysis {#sec-FA}
 

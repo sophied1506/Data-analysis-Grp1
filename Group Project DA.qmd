@@ -1,6 +1,7 @@
+
 ---
 title: "Has Scottish Obesity Prevalence Changed over the Years and do Different Factors Effect this"
-author: "Jo Scott-Stephen, Eleanor Mills, Sophie Brown"
+author: "Jo Scott-Stephen" "Eleanor Mills" "Sophie Brown"
 execute: 
   echo: false
   eval: true
@@ -16,7 +17,6 @@ editor_options:
 #| echo: false
 #| warning: false
 #| message: false
-
 library(ggplot2)
 library(dplyr)
 library(tidyr)
@@ -25,36 +25,26 @@ library(sjPlot)
 library(performance)
 library(kableExtra)
 library(gt)
+```
 
-Obesity <- read.csv("DAProject3.csv")
+
+```{r}
+df<-read.csv("DAProject3.csv")
+df$Sex<-as.factor(df$Sex)
+df$AgeGroup<-as.factor(df$AgeGroup)
+df$Veg<-as.factor(df$Veg)
+df$Fruit<-as.factor(df$Fruit)
+df$Obese<-as.factor(df$Obese)
+df$Employment<-as.factor(df$Employment)
+df$Employment_Clean<-as.factor(ifelse(df$Employment=="In full-time education"|df$Employment=="In paid employment, self-employed or on gov't training", "Employed/Full-Time Training or Education",ifelse(df$Employment=="Retired", "Retired", "Unemployed/Other")))
+df$FV<-as.factor(ifelse(df$Fruit=="Yes"|df$Veg=="Yes", "Yes", "No"))
 ```
 
 # Introduction {#sec-intro}
 
 # Exploratory Analysis {#sec-EA}
 
-```{r}
-#| label: fig-fig1
-#| fig-cap: "Proportion of Obesity by Year"
-
-proportions <- Obesity |>
-  group_by(Year, Obese) |>
-  summarise(Count = n(), .groups = "drop") |>
-  group_by(Year) |>
-  mutate(Proportion = Count/sum(Count))
-
-
-ggplot(proportions, aes(x = factor(Year), y = Proportion, fill = Obese)) +
-  geom_bar(stat = "identity", position = "fill") +
-  labs(title = "Proportion of Obesity by Year",
-       x = "Year",
-       y = "Proportion",
-       fill = "Obesity") +
-  theme_minimal()
-```
-
-From @fig-fig1 there is very little difference in the proportion of people whoa re Obese as the years change.
-
 # Formal Analysis {#sec-FA}
 
 # Conclusions {#sec-con}
+

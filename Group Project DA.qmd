@@ -44,6 +44,8 @@ df$FV<-as.factor(ifelse(df$Fruit=="Yes"|df$Veg=="Yes", "Yes", "No"))
 # Exploratory Analysis {#sec-EA}
 
 # Formal Analysis {#sec-FA}
+We will now fit a model. 
+
 
 # Conclusions {#sec-con}
 

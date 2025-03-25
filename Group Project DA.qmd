@@ -1,6 +1,6 @@
 ---
 title: "Has Scottish Obesity Prevalence Changed over the Years and do Different Factors Effect this"
-author: "Jo Scott-Stephen" "Eleanor Mills" "Sophie Brown"
+author: "Jo Scott-Stephen, Eleanor Mills and Sophie Brown"
 execute: 
   echo: false
   eval: true
@@ -92,67 +92,68 @@ where
 -   $\mathbb{I}_{\text{sex}}(x)$ is an indicator function such that
 
 $$
-\mathbb{I}_{\mbox{male}}(x) =
-\begin{cases}
-1 & \mbox{if gender of } x \mbox{ is male}, \\
-0 & \mbox{if gender of } x \mbox{ is female}.
-\end{cases}
+    \mathbb{I}_{\mbox{male}}(x) =
+    \begin{cases}
+    1 & \mbox{if gender of } x \mbox{ is male}, \\
+    0 & \mbox{if gender of } x \mbox{ is female}.
+    \end{cases}
 $$
+
 -   $\mathbb{I}_{\text{FV}}(x)$ is an indicator function such that
 
 $$
-\mathbb{I}_{\mbox{FV}}(x) =
-\begin{cases}
-1 & \mbox{if } x \mbox{ consumes the recommended daily intake of fruit and/or vegetables}, \\
-0 & \mbox{otherwise}.
-\end{cases}
+    \mathbb{I}_{\mbox{FV}}(x) =
+    \begin{cases}
+    1 & \mbox{if } x \mbox{ consumes the recommended daily intake of fruit and/or vegetables}, \\
+    0 & \mbox{otherwise}.
+    \end{cases}
 $$
 
 -   $\mathbb{I}_{\text{middle-aged}}(x)$ is an indicator function such that
 
 $$
-\mathbb{I}_{\mbox{middle-aged}}(x) =
-\begin{cases}
-1 & \mbox{if } x \mbox{ is middle-aged (35-64 years old)}, \\
-0 & \mbox{otherwise}.
-\end{cases}
+    \mathbb{I}_{\mbox{middle-aged}}(x) =
+    \begin{cases}
+    1 & \mbox{if } x \mbox{ is middle-aged (35-64 years old)}, \\
+    0 & \mbox{otherwise}.
+    \end{cases}
 $$
+
 -   $\mathbb{I}_{\text{old}}(x)$ is an indicator function such that
 
 $$
-\mathbb{I}_{\mbox{old}}(x) =
-\begin{cases}
-1 & \mbox{if } x \mbox{ is old (65+ years old)}, \\
-0 & \mbox{otherwise}.
-\end{cases}
+    \mathbb{I}_{\mbox{old}}(x) =
+    \begin{cases}
+    1 & \mbox{if } x \mbox{ is old (65+ years old)}, \\
+    0 & \mbox{otherwise}.
+    \end{cases}
 $$
+
 -   $\mathbb{I}_{\text{retired}}(x)$ is an indicator function such that
 
 $$
-\mathbb{I}_{\mbox{retired}}(x) =
-\begin{cases}
-1 & \mbox{if } x \mbox{ is retired}, \\
-0 & \mbox{otherwise}.
-\end{cases}
+    \mathbb{I}_{\mbox{retired}}(x) =
+    \begin{cases}
+    1 & \mbox{if } x \mbox{ is retired}, \\
+    0 & \mbox{otherwise}.
+    \end{cases}
 $$
+
 -   $\mathbb{I}_{\text{unemployed}}(x)$ is an indicator function such that
 
 $$
-\mathbb{I}_{\mbox{unemployed}}(x) =
-\begin{cases}
-1 & \mbox{if } x \mbox{ is unemployed or in another non-working status}, \\
-0 & \mbox{otherwise}.
-\end{cases}
+    \mathbb{I}_{\mbox{unemployed}}(x) =
+    \begin{cases}
+    1 & \mbox{if } x \mbox{ is unemployed or in another non-working status}, \\
+    0 & \mbox{otherwise}.
+    \end{cases}
 $$
-
 
 ```{r}
 #| echo: false
-#| label: tbl-sum
-#| tbl-cap: Summary Table
-model <- glm(Obese ~ Sex + Year + FV + AgeCategory + Employment_Clean, data = df, family = binomial)
-model %>% broom::tidy() %>% gt()
-AIC(model)
+mod1 <- glm(Obese ~ Sex + Year + FV + AgeCategory + Employment_Clean, data = df, family = binomial)
+mod1_tidy <- mod1 %>% broom::tidy() %>% gt()
+AIC(mod1)
 ```
 
 | Term               | Estimate | p-value |
@@ -166,14 +167,16 @@ AIC(model)
 | Retired            |          |         |
 | Unemployed / Other |          |         |
 
-:: ADD TABLE CAPTION
+: Estimates of the fitted model's coefficients. {#tbl-model}
 
 As predicted from our plots. Obesity rate hasn't changed over the years, so should be remved from the model. However, it seems that the log-odds of Obesity decreases by 0.112 (find new value now changed) if they are male.
 
 ```{r}
-mod1 <- glm(Obese ~ Year, data = df, family = binomial)
-mod1 %>% broom::tidy()%>% gt()
-AIC(mod1)
+#| echo: false
+#| results: hide
+mod2 <- glm(Obese ~ Year, data = df, family = binomial)
+mod2 %>% broom::tidy()%>% gt()
+AIC(mod2)
 ```
 
 # Conclusions {#sec-con}

@@ -45,7 +45,7 @@ df$FV <- as.factor(ifelse(df$Fruit == "Yes" | df$Veg == "Yes", "Yes", "No"))
 
 
 df$AgeCategory <- as.factor(ifelse(df$AgeGroup %in% c("16-24", "25-34"), "Young",
-                    ifelse(df$AgeGroup %in% c("35-44", "45-54"), "Middle-aged",
+                    ifelse(df$AgeGroup %in% c("35-44", "45-54", "55-64"), "Middle-aged",
                            "Old")))
 df$AgeCategory <- relevel(df$AgeCategory, ref = "Young")
 
@@ -68,34 +68,86 @@ $$
 Where $p_i$ is the probability of being obese
 
 $$
-logit(p_i)= \alpha + \beta_{\text{male}}\cdot\mathbb{I}_{\text{male}} + \beta_{\text{year}}\cdot\text{Year} + \beta_{\text{fv}}\cdot\mathbb{I}_{\text{FV}} + \beta_{\text{middle-aged}}\cdot\mathbb{I}_{\text{middle-aged}} + \beta_{\text{old}}\cdot\mathbb{I}_{\text{old}} + \beta_{retired}\cdot\mathbb{I}_{\text{retired}} + \beta_{unemployed}\cdot\mathbb{I}_{\text{unemployed}}
+logit(p_i)= \alpha + \beta_{\text{sex}}\cdot\mathbb{I}_{\text{sex}} + \beta_{\text{year}}\cdot\text{Year} + \beta_{\text{fv}}\cdot\mathbb{I}_{\text{FV}} + \beta_{\text{middle-aged}}\cdot\mathbb{I}_{\text{middle-aged}} + \beta_{\text{old}}\cdot\mathbb{I}_{\text{old}} + \beta_{retired}\cdot\mathbb{I}_{\text{retired}} + \beta_{unemployed}\cdot\mathbb{I}_{\text{unemployed}}
 $$
 
 where
 
--   $\alpha$ is the intercept,
+-   $\alpha$ is the intercept (the baseline log-odds of obesity when all predictors are at their reference category),
 
--   $\beta_\text{male}$ is the coefficient for sex,
+-   $\beta_\text{sex}$ is the coefficient for sex,
 
 -   $\beta_\text{year}$ is the coefficient for survey year,
 
 -   $\beta_\text{fv}$ is the coefficient for whether an individual consumes the daily intake of either fruit, vegetables or both,
 
--   $\beta_\text{year}$ is the coefficient for age category,
+-   $\beta_\text{middle-aged}$ is the coefficient for being middle-aged (35-64 years old),
 
--   $\beta_\text{year}$ is the coefficient for employment status,
+-   $\beta_\text{old}$ is the coefficient for being old (65+ years),
+
+-   $\beta_\text{retired}$ is the coefficient for being retired,
+
+-   $\beta_\text{unemployed}$ is the coefficient for being unemployed or in another non-working status,
 
 -   $\mathbb{I}_{\text{sex}}(x)$ is an indicator function such that
 
 $$
 \mathbb{I}_{\mbox{male}}(x) =
 \begin{cases}
-1 & \mbox{If gender of } x \mbox{ is male}, \\
-0 & \mbox{If gender of } x \mbox{ is female}.
+1 & \mbox{if gender of } x \mbox{ is male}, \\
+0 & \mbox{if gender of } x \mbox{ is female}.
+\end{cases}
+$$
+-   $\mathbb{I}_{\text{FV}}(x)$ is an indicator function such that
+
+$$
+\mathbb{I}_{\mbox{FV}}(x) =
+\begin{cases}
+1 & \mbox{if } x \mbox{ consumes the recommended daily intake of fruit and/or vegetables}, \\
+0 & \mbox{otherwise}.
 \end{cases}
 $$
 
+-   $\mathbb{I}_{\text{middle-aged}}(x)$ is an indicator function such that
+
+$$
+\mathbb{I}_{\mbox{middle-aged}}(x) =
+\begin{cases}
+1 & \mbox{if } x \mbox{ is middle-aged (35-64 years old)}, \\
+0 & \mbox{otherwise}.
+\end{cases}
+$$
+-   $\mathbb{I}_{\text{old}}(x)$ is an indicator function such that
+
+$$
+\mathbb{I}_{\mbox{old}}(x) =
+\begin{cases}
+1 & \mbox{if } x \mbox{ is old (65+ years old)}, \\
+0 & \mbox{otherwise}.
+\end{cases}
+$$
+-   $\mathbb{I}_{\text{retired}}(x)$ is an indicator function such that
+
+$$
+\mathbb{I}_{\mbox{retired}}(x) =
+\begin{cases}
+1 & \mbox{if } x \mbox{ is retired}, \\
+0 & \mbox{otherwise}.
+\end{cases}
+$$
+-   $\mathbb{I}_{\text{unemployed}}(x)$ is an indicator function such that
+
+$$
+\mathbb{I}_{\mbox{unemployed}}(x) =
+\begin{cases}
+1 & \mbox{if } x \mbox{ is unemployed or in another non-working status}, \\
+0 & \mbox{otherwise}.
+\end{cases}
+$$
+
+
 ```{r}
+#| echo: false
 #| label: tbl-sum
 #| tbl-cap: Summary Table
 model <- glm(Obese ~ Sex + Year + FV + AgeCategory + Employment_Clean, data = df, family = binomial)
@@ -114,10 +166,11 @@ AIC(model)
 | Retired            |          |         |
 | Unemployed / Other |          |         |
 
+:: ADD TABLE CAPTION
+
 As predicted from our plots. Obesity rate hasn't changed over the years, so should be remved from the model. However, it seems that the log-odds of Obesity decreases by 0.112 (find new value now changed) if they are male.
 
 ```{r}
-
 mod1 <- glm(Obese ~ Year, data = df, family = binomial)
 mod1 %>% broom::tidy()%>% gt()
 AIC(mod1)

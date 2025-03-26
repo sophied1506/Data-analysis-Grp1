@@ -154,6 +154,43 @@ $$
 mod1 <- glm(Obese ~ Sex + Year + FV + AgeCategory + Employment_Clean, data = df, family = binomial)
 mod1_tidy <- mod1 %>% broom::tidy() %>% gt()
 AIC(mod1)
+
+pred_results <- mod1 %>%
+  augment(type.predict = c("response")) %>%
+  mutate(predicted_class = factor(ifelse(.fitted > 0.5, "Yes", "No")))
+
+roc_curve(pred_results,
+          truth = Obese,
+          .fitted,
+          event_level = "second") %>%
+  autoplot()
+
+
+library(ggplot2)
+library(tidyverse)
+library(gt)
+library(MASS)
+library(patchwork)
+library(moderndive)
+
+# potentially cut
+step.model <- stepAIC(mod1, direction = "backward", trace = FALSE)
+# trace = FALSE here is to prevent the R output from being printing in the Markdown document. To see the steps of the process and determine the final model set trace = TRUE.
+Coefs <- round(coef(step.model), 3)
+AIC <- step.model$anova[, 6]
+
+
+pred_results <- step.model %>%
+  augment(type.predict = c("response")) %>%
+  mutate(predicted_class = factor(ifelse(.fitted > 0.5, "Yes", "No")))
+
+roc_curve(pred_results,
+          truth = Obese,
+          .fitted,
+          event_level = "second") %>%
+  autoplot()
+
+
 ```
 
 | Term               | Estimate | p-value |

@@ -24,9 +24,15 @@ library(sjPlot)
 library(performance)
 library(kableExtra)
 library(gt)
+library(tidyverse)
+library(gt)
+library(MASS)
+library(patchwork)
+library(moderndive)
 ```
 
 ```{r}
+#| echo: false
 df <- read.csv("DAProject3.csv")
 
 df <- df %>%
@@ -57,7 +63,7 @@ df$AgeCategory <- relevel(df$AgeCategory, ref = "Young")
 
 # Formal Analysis {#sec-FA}
 
-We will now fit a model to the data.
+Since there seems to be no significant change in the prevelance of obesity in Scotland over the years we will now investigate how socio-economic factors affect obseity rates. We will start by modelling all the variables because....
 
 Since our response variable is binary, we fit a logistic regression model.
 
@@ -151,11 +157,47 @@ $$
 
 ```{r}
 #| echo: false
-mod1 <- glm(Obese ~ Sex + Year + FV + AgeCategory + Employment_Clean, data = df, family = binomial)
-mod1_tidy <- mod1 %>% broom::tidy() %>% gt()
-AIC(mod1)
+mod2 <- glm(Obese ~ Sex + Year + FV + AgeCategory + Employment_Clean, data = df, family = binomial)
+mod2_tidy <- mod2 %>% broom::tidy() %>% gt()
+AIC_mod2 <- AIC(mod2)
+```
 
-pred_results <- mod1 %>%
+| Term               | Estimate (to 3 d.p.) | p-value (to 4 d.p.) |
+|--------------------|----------------------|---------------------|
+| Intercept          | 1.723                | 0.9591              |
+| Sex Male           | -0.104               | 0.0056              |
+| Year               | -0.001               | 0.9289              |
+| FV yes             | -0.070               | 0.2416              |
+| Middle-aged        | 0.570                | 0.0000              |
+| Old                | 0.631                | 0.0000              |
+| Retired            | 0.104                | 0.1528              |
+| Unemployed / Other | 0.394                | 0.0000              |
+
+: Estimates of the fitted model's coefficients. {#tbl-mod2}
+
+@tbl-mod2 displays the fitted values from out model. From this we can see that year, fruit and vegetables and retirement all have large p-values, signifying these are not significant. Most notably we can see that an increase in age .............
+
+```{r}
+#| echo: false
+#| fig-cap: GLM diagnostics for the obesity rates in Scotland
+#| label: fig-mod2diag
+#| fig-align: center
+
+library(performance)
+check_model(mod2, panel = TRUE)
+check_outliers(mod2)
+```
+
+@fig-mod2diag
+
+We will plot a ROC curve of our model to assess the goodness of fit.
+
+```{r}
+#| echo: false
+#| fig-cap: ROC curve for full socioeconomic model
+#| label: fig-mod2roc
+#| fig-align: center
+pred_results <- mod2 %>%
   augment(type.predict = c("response")) %>%
   mutate(predicted_class = factor(ifelse(.fitted > 0.5, "Yes", "No")))
 
@@ -164,18 +206,17 @@ roc_curve(pred_results,
           .fitted,
           event_level = "second") %>%
   autoplot()
+```
 
+@fig-mod2roc tells us ...................
 
-library(ggplot2)
-library(tidyverse)
-library(gt)
-library(MASS)
-library(patchwork)
-library(moderndive)
-
+```{r}
+#| echo: false
+#| fig-cap: ROC curve for simpler socioeconomic model
+#| label: fig-stepmodroc
+#| fig-align: center
 # potentially cut
-step.model <- stepAIC(mod1, direction = "backward", trace = FALSE)
-# trace = FALSE here is to prevent the R output from being printing in the Markdown document. To see the steps of the process and determine the final model set trace = TRUE.
+step.model <- stepAIC(mod2, direction = "backward", trace = FALSE)
 Coefs <- round(coef(step.model), 3)
 AIC <- step.model$anova[, 6]
 
@@ -190,30 +231,8 @@ roc_curve(pred_results,
           event_level = "second") %>%
   autoplot()
 
-
 ```
 
-| Term               | Estimate | p-value |
-|--------------------|----------|---------|
-| Intercept          |          |         |
-| Sex Male           |          |         |
-| Year               |          |         |
-| FV yes             |          |         |
-| Middle-aged        |          |         |
-| Old                |          |         |
-| Retired            |          |         |
-| Unemployed / Other |          |         |
-
-: Estimates of the fitted model's coefficients. {#tbl-model}
-
-As predicted from our plots. Obesity rate hasn't changed over the years, so should be remved from the model. However, it seems that the log-odds of Obesity decreases by 0.112 (find new value now changed) if they are male.
-
-```{r}
-#| echo: false
-#| results: hide
-mod2 <- glm(Obese ~ Year, data = df, family = binomial)
-mod2 %>% broom::tidy()%>% gt()
-AIC(mod2)
-```
+@fig-stepmodroc tells us .........
 
 # Conclusions {#sec-con}

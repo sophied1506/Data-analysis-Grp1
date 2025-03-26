@@ -63,7 +63,7 @@ df$AgeCategory <- relevel(df$AgeCategory, ref = "Young")
 
 # Formal Analysis {#sec-FA}
 
-Since there seems to be no significant change in the prevelance of obesity in Scotland over the years we will now investigate how socio-economic factors affect obseity rates. We will start by modelling all the variables because....
+Since there seems to be no significant change in the prevelance of obesity in Scotland over the years we will now investigate how socio-economic factors affect obseity rates. We start by fitting the full multiple regression model containing all explanatory variables.
 
 Since our response variable is binary, we fit a logistic regression model.
 
@@ -71,29 +71,15 @@ $$
 Obese \sim Bernoulli(p_i)
 $$
 
-Where $p_i$ is the probability of being obese
-
 $$
 logit(p_i)= \alpha + \beta_{\text{sex}}\cdot\mathbb{I}_{\text{sex}} + \beta_{\text{year}}\cdot\text{Year} + \beta_{\text{fv}}\cdot\mathbb{I}_{\text{FV}} + \beta_{\text{middle-aged}}\cdot\mathbb{I}_{\text{middle-aged}} + \beta_{\text{old}}\cdot\mathbb{I}_{\text{old}} + \beta_{retired}\cdot\mathbb{I}_{\text{retired}} + \beta_{unemployed}\cdot\mathbb{I}_{\text{unemployed}}
 $$
 
-where
+where $p_i$ is the probability of being obese and
 
 -   $\alpha$ is the intercept (the baseline log-odds of obesity when all predictors are at their reference category),
 
 -   $\beta_\text{sex}$ is the coefficient for sex,
-
--   $\beta_\text{year}$ is the coefficient for survey year,
-
--   $\beta_\text{fv}$ is the coefficient for whether an individual consumes the daily intake of either fruit, vegetables or both,
-
--   $\beta_\text{middle-aged}$ is the coefficient for being middle-aged (35-64 years old),
-
--   $\beta_\text{old}$ is the coefficient for being old (65+ years),
-
--   $\beta_\text{retired}$ is the coefficient for being retired,
-
--   $\beta_\text{unemployed}$ is the coefficient for being unemployed or in another non-working status,
 
 -   $\mathbb{I}_{\text{sex}}(x)$ is an indicator function such that
 
@@ -105,6 +91,10 @@ $$
     \end{cases}
 $$
 
+-   $\beta_\text{year}$ is the coefficient for survey year,
+
+-   $\beta_\text{fv}$ is the coefficient for whether an individual consumes the daily intake of either fruit, vegetables or both,
+
 -   $\mathbb{I}_{\text{FV}}(x)$ is an indicator function such that
 
 $$
@@ -114,6 +104,8 @@ $$
     0 & \mbox{otherwise}.
     \end{cases}
 $$
+
+-   $\beta_\text{middle-aged}$ is the coefficient for being middle-aged (35-64 years old),
 
 -   $\mathbb{I}_{\text{middle-aged}}(x)$ is an indicator function such that
 
@@ -125,6 +117,8 @@ $$
     \end{cases}
 $$
 
+-   $\beta_\text{old}$ is the coefficient for being old (65+ years),
+
 -   $\mathbb{I}_{\text{old}}(x)$ is an indicator function such that
 
 $$
@@ -135,6 +129,8 @@ $$
     \end{cases}
 $$
 
+-   $\beta_\text{retired}$ is the coefficient for being retired,
+
 -   $\mathbb{I}_{\text{retired}}(x)$ is an indicator function such that
 
 $$
@@ -144,6 +140,8 @@ $$
     0 & \mbox{otherwise}.
     \end{cases}
 $$
+
+-   $\beta_\text{unemployed}$ is the coefficient for being unemployed or in another non-working status,
 
 -   $\mathbb{I}_{\text{unemployed}}(x)$ is an indicator function such that
 
@@ -175,7 +173,7 @@ AIC_mod2 <- AIC(mod2)
 
 : Estimates of the fitted model's coefficients. {#tbl-mod2}
 
-@tbl-mod2 displays the fitted values from out model. From this we can see that year, fruit and vegetables and retirement all have large p-values, signifying these are not significant. Most notably we can see that an increase in age .............
+@tbl-mod2 displays the fitted values from out model. From this we can see that year, fruit and vegetables and retirement all have large p-values, signifying these are not significant. Most notably we can see that an increase in age ............. ADD INTERPRETATION OF MOD2 HERE.
 
 ```{r}
 #| echo: false
@@ -185,12 +183,10 @@ AIC_mod2 <- AIC(mod2)
 
 library(performance)
 check_model(mod2, panel = TRUE)
-check_outliers(mod2)
+# IDK WHY IT IS SHOWING 5 PANELS INSTEAD OF 4????
 ```
 
-@fig-mod2diag
-
-We will plot a ROC curve of our model to assess the goodness of fit.
+@fig-mod2diag allows us to assess if our model assumptions are met. The posterior predictive check shows that the model-predicted intervals include the observed data points. The binned residuals plot highlight that the majority of points fall within the error bounds. The influential observations plot shows that all points are inside the contour lines. Finally, the uniformity of residuals plot displays that the observed values do not deviate from the model expectations when using simulated residuals. This therefore demonstrates that our model is appropriately fitted to the data.
 
 ```{r}
 #| echo: false
@@ -208,7 +204,37 @@ roc_curve(pred_results,
   autoplot()
 ```
 
-@fig-mod2roc tells us ...................
+To assess how good the model is at separating if a person is obese or not, we will plot a ROC curve. This can be seen in @fig-mod2roc. Since the ROC curve is fairly close to the diagonal line then this indicates that our model is only slighly better than random guessing. Ideally we would want to see the ROC curve closer to the top-left corner as this implies the model has high true positive rates and low false positive rates.
+
+### POTENTIALLY CUT
+
+To see if this model can be improved we will undergo stepwise regression with backward selection to reduce the full model based on the AIC. In this case, the final model detailed below provides the lowest AIC.
+
+$$
+logit(p_i)= \alpha + \beta_{\text{sex}}\cdot\mathbb{I}_{\text{sex}} + \beta_{\text{middle-aged}}\cdot\mathbb{I}_{\text{middle-aged}} + \beta_{\text{old}}\cdot\mathbb{I}_{\text{old}} + \beta_{retired}\cdot\mathbb{I}_{\text{retired}} + \beta_{unemployed}\cdot\mathbb{I}_{\text{unemployed}}
+$$ The regression coefficients from the model are displayed in @tbl-stepmod.
+
+| Term               | Estimate (to 3 d.p.) | p-value (to 4 d.p.) |
+|--------------------|----------------------|---------------------|
+| Intercept          | -1.340               | 0.0000              |
+| Sex Male           | -0.101               | 0.0069              |
+| Middle-aged        | 0.565                | 0.0000              |
+| Old                | 0.625                | 0.0000              |
+| Retired            | 0.104                | 0.1551              |
+| Unemployed / Other | 0.401                | 0.0000              |
+
+: Estimates of the fitted model's coefficients. {#tbl-stepmod}
+
+```{r}
+#| echo: false
+step.model <- stepAIC(mod2, direction = "backward", trace = FALSE)
+Coefs <- round(coef(step.model), 3)
+AIC_stepmod <- step.model$anova[, 6]
+
+step.model_tidy <- step.model %>% broom::tidy() %>% gt()
+```
+
+However, the reduced model has an AIC of 17009.35 compared to the full model which has an AIC of 17011.99. This demonstrates that although the reduced model has a lower AIC, the difference is negligible. This can further be seen through the ROC curve @fig-stepmodroc displaying no significant differences to @fig-mod2roc.
 
 ```{r}
 #| echo: false
@@ -216,10 +242,6 @@ roc_curve(pred_results,
 #| label: fig-stepmodroc
 #| fig-align: center
 # potentially cut
-step.model <- stepAIC(mod2, direction = "backward", trace = FALSE)
-Coefs <- round(coef(step.model), 3)
-AIC <- step.model$anova[, 6]
-
 
 pred_results <- step.model %>%
   augment(type.predict = c("response")) %>%
@@ -230,9 +252,6 @@ roc_curve(pred_results,
           .fitted,
           event_level = "second") %>%
   autoplot()
-
 ```
-
-@fig-stepmodroc tells us .........
 
 # Conclusions {#sec-con}

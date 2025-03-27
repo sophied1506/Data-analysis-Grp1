@@ -239,5 +239,3 @@ check_model(mod1, panel = TRUE)
 idk what to say, need to complete this when I have more time
 
 # Conclusions {#sec-con}
-
->>>>>>> main

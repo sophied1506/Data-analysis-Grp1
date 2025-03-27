@@ -29,6 +29,7 @@ library(gt)
 library(MASS)
 library(patchwork)
 library(moderndive)
+library(sjPlot)
 ```
 
 ```{r}
@@ -175,6 +176,34 @@ AIC_mod2 <- AIC(mod2)
 
 @tbl-mod2 displays the fitted values from out model. From this we can see that year, fruit and vegetables and retirement all have large p-values, signifying these are not significant. Most notably we can see that an increase in age ............. ADD INTERPRETATION OF MOD2 HERE.
 
+
+```{r}
+#| echo: false
+#| fig-cap: Predicted Probability of Obesity by Employment Status
+#| label: fig-prob-employ
+#| fig-align: center
+plot_model(mod2, 
+           type = "pred",
+           terms = "Employment_Clean",
+           axis.title = c("Employment Status", "Probability of Obesity"),
+           title = "")
+```
+@fig-prob-employ tells us ................
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-cap: Odds (Obesity)
+#| label: fig-odds
+#| fig-align: center
+plot_model(mod2,
+           show.values = TRUE,
+           title = "", 
+           show.p = FALSE, axis.lim = c(0.9, 1.95))
+```
+@fig-odds tells us .....................
+
 ```{r}
 #| echo: false
 #| fig-cap: GLM diagnostics for the obesity rates in Scotland
@@ -255,3 +284,11 @@ roc_curve(pred_results,
 ```
 
 # Conclusions {#sec-con}
+
+This report has investigated trends in obesity prevalence in Scotland over time and examined the impact of socio-economic factors using logistic regression modeling. The findings indicate that obesity rates have remained relatively stable, with no significant change over the years. Furthermore, our model suggests that key socio-economic factors, such as age and employment status, play a crucial role in obesity prevalence. Specifically, being younger and being employed, all else constant, is associated with lower odds of obesity. In contrast, factors such as fruit and vegetable consumption had minimal impact. This highlights the impact of socio-economic conditions on health and the need ...............................
+
+The model diagnostics confirm that our regression model is appropriately fitted to the data, with no major violations of model assumptions. However, the ROC curve suggests that the model’s predictive ability is only slightly better than random guessing, indicating that additional factors may be needed to better explain obesity prevalence.
+
+We also attempted to refine the model using stepwise regression. While the reduced model achieved a marginally lower AIC, the difference was negligible, and its predictive performance remained similar to the full model. This suggests that while some variables could be excluded without significant loss of explanatory power, the overall findings remain consistent.
+
+In conclusion, whilst obesity prevalence in Scotland has not changed significantly over time, socio-economic factors, particularly age and employment status, are important contributors. Future research could explore additional lifestyle, behavioral, and environmental factors to improve the predictive power of the model and gain deeper insights into obesity trends and interventions.

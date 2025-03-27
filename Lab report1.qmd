@@ -1,7 +1,0 @@
----
-title: "Lab Report 1"
-format: html
-editor: visual
----
-
-# Introduction {#sec-intro}

@@ -192,6 +192,20 @@ plot_model(mod2,
 
 ```{r}
 #| echo: false
+#| fig-cap: Predicted Probability of Obesity by Age Group
+#| label: fig-prob-age
+#| fig-align: center
+plot_model(mod2, 
+           type = "pred",
+           terms = "AgeCategory",
+           axis.title = c("Age Category", "Probability of Obesity"),
+           title = "")
+```
+@fig-prob-age tells us ................
+
+
+```{r}
+#| echo: false
 #| warning: false
 #| message: false
 #| fig-cap: Odds (Obesity)

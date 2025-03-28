@@ -381,7 +381,7 @@ These results can be visualised in @fig-odds , which visualises our odds ratios.
 
 We then check the model fit with @fig-stepmoddiag and also see how accurately it predicts obesity with @fig-stepmodroc.
 
-![Model Diagnostic Plots](images/Rplot.png){#fig-stepmoddiag}
+![Model Diagnostic Plots](images/Rplot.png){#fig-stepmoddiag width="2.92in"}
 
 @fig-stepmoddiag allows us to assess if our model assumptions are met. From the plots it seems that our model predicted intervals include the observed data points and none of these points are deemed influential. Furthermore, our residuals seem fairly uniform. However, over half our binned residuals lie outwith the error bounds, indicating we have an ill-fitted model.
 

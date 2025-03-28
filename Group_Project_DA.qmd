@@ -218,48 +218,7 @@ ggplot(proportionsFV, aes(x= FV, y= Proportion, fill = Obese))+
 
 # Formal Analysis {#sec-FA}
 
-\# Formal Analysis {#sec-FA}
-
-# Formal Analysis {#sec-FA}
-
-First we check if obesity prevalence has infact changed over the years in general, not taking any other variables into account. We do that by fitting the following logistic regression model
-
-$$
-\begin{align}
-\mathrm{Obese}\sim Bernoulli(p_i)\\
-\mathrm{logit}(p_i)=\alpha +  \beta_{\text{year}}\cdot\text{year}
-\end{align}
-$$
-
-where $p_i$ is the probability of being obese
-
-$\alpha$ is the intercept (the baseline log-odds of obesity when all predictors are at their reference category) and
-
-$\beta_\text{year}$ is the coefficient for survey year
-
-```{r}
-#| label: tbl-summary1
-#| tbl-cap: Results of fitting a logistic regression to see if obesity prevalence changes over the years
-mod1 <- glm(Obese ~ Year, data = df, family = binomial)
-x<-as.data.frame(broom::tidy(mod1))
-x<-x[,c(1,2,5)]
-gt(x)
-```
-
-As indicated from our previous plots (@fig-obesityyear), Obesity prevalence has seemed to stay rather constant over the years, with a small non-statistically significant increase of 0.0056 in the log-odds of obesity with every passing year.
-
-We check the appropriateness of this model fit with the following plots (@fig-resid1).
-
-```{r}
-#| label: fig-resid1
-#| fig-cap: Plots to check model appropriateness
-library(performance)
-check_model(mod1, panel = TRUE)
-```
-
-idk what to say, need to complete this when I have more time
-
-We then fit the full regression model containing all explanatory variables. Since our response variable is binary, we fit a logistic regression model without interaction as we want to focus onthe individual effects of each of our covariates. The model can be written as:
+We first fit the full regression model containing all explanatory variables to investigate whether obesity rate has chaanged over the years, before refining our model with modelling selection criteria based on the AIC. Since our response variable is binary, we fit a logistic regression model without interaction as we want to focus onthe individual effects of each of our covariates. The model can be written as:
 
 $$
 Obese \sim Bernoulli(p_i)
@@ -347,6 +306,8 @@ $$
     \end{cases}
 $$
 
+As we have many covariates and a rather large model we will check the significance of our covariates in @tbl-fullmod to see if we have room to refine it.
+
 ```{r}
 #| echo: false
 mod2 <- glm(Obese ~ Sex + Year + FV + AgeCategory + Employment_Clean, data = df, family = binomial)
@@ -354,7 +315,22 @@ mod2_tidy <- mod2 %>% broom::tidy() %>% gt()
 AIC_mod2 <- AIC(mod2)
 ```
 
-The AIC for this model is 17011.99, As this value is rather high, we employ stepwise regression with backward selection to see if we can achieve a better fit, based off of the lowest AIC. The new model we fit is defined as follows:
+| Term                                  | p-value |
+|---------------------------------------|---------|
+| Intercept                             | 0.9592  |
+| Sex: Male                             | 0.0056  |
+| Year                                  | 0.9289  |
+| Eating Recommended Fruit and Veg: Yes | 0.2416  |
+| Age Category: Middle-aged             | 0.0000  |
+| Age Category: Old                     | 0.0000  |
+| Employment Status: Retired            | 0.1528  |
+| Employment Status: Unemployed/Other   | 0.0000  |
+
+: Table looking at significance of full model covariates {#tbl-fullmod}
+
+From @tbl-fullmod we see that many of our covariates do not have significant p-values, including the variable Year. This means that there is not enough evidence to indicate that obesity rates have changed over the years.
+
+The AIC for this model is 17011.99, As this value is rather high and we have many insignificant covariates, we employ stepwise regression with backward selection to see if we can achieve a better fit, based on the lowest AIC. The new model we fit is defined as follows:
 
 $$
 logit(p_i)= \alpha + \beta_{\text{sex}}\cdot\mathbb{I}_{\text{sex}} + \beta_{\text{middle-aged}}\cdot\mathbb{I}_{\text{middle-aged}} + \beta_{\text{old}}\cdot\mathbb{I}_{\text{old}} + \beta_{retired}\cdot\mathbb{I}_{\text{retired}} + \beta_{unemployed}\cdot\mathbb{I}_{\text{unemployed}}
@@ -372,14 +348,14 @@ step.model_tidy <- step.model %>% broom::tidy() %>% gt()
 ```
 
 ::: {layout-ncol="2"}
-| Term               | Estimate | p-value |
-|--------------------|----------|---------|
-| Intercept          | -1.3402  | 0.0000  |
-| Sex Male           | -0.1014  | 0.0069  |
-| Middle-aged        | 0.5658   | 0.0000  |
-| Old                | 0.6249   | 0.0000  |
-| Retired            | 0.1036   | 0.1551  |
-| Unemployed / Other | 0.4006   | 0.0000  |
+| Term                                  | Estimate | p-value |
+|---------------------------------------|----------|---------|
+| Intercept                             | -1.3402  | 0.0000  |
+| Sex: Male                             | -0.1014  | 0.0069  |
+| Age Category: Middle-aged             | 0.5658   | 0.0000  |
+| Age Catergory: Old                    | 0.6249   | 0.0000  |
+| Employment Status: Retired            | 0.1036   | 0.1551  |
+| Employment Status: Unemployed / Other | 0.4006   | 0.0000  |
 
 : Estimates of the fitted model's coefficients to 4 d.p. {#tbl-stepmod}
 :::

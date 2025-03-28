@@ -12,55 +12,151 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r}
-#| echo: false
-#| warning: false
-#| message: false
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(tidymodels)
-library(sjPlot)
-library(performance)
-library(kableExtra)
-library(gt)
-library(tidyverse)
-library(gt)
-library(MASS)
-library(patchwork)
-library(moderndive)
-library(sjPlot)
-```
-
-```{r}
-#| echo: false
-df <- read.csv("DAProject3.csv")
-
-df <- df %>%
-  mutate(
-    Sex = as.factor(Sex),
-    AgeGroup = as.factor(AgeGroup),
-    Veg = as.factor(Veg),
-    Fruit = as.factor(Fruit),
-    Obese = as.factor(Obese),
-    Employment = as.factor(Employment)
-  )
-
-df$Employment_Clean <- as.factor(ifelse(df$Employment == "In full-time education" | df$Employment =="In paid employment, self-employed or on gov't training", "Employed/Full-Time Training or Education", ifelse(df$Employment == "Retired", "Retired", "Unemployed/Other")))
-
-df$FV <- as.factor(ifelse(df$Fruit == "Yes" | df$Veg == "Yes", "Yes", "No"))
-
-
-df$AgeCategory <- as.factor(ifelse(df$AgeGroup %in% c("16-24", "25-34"), "Young",
-                    ifelse(df$AgeGroup %in% c("35-44", "45-54", "55-64"), "Middle-aged",
-                           "Old")))
-df$AgeCategory <- relevel(df$AgeCategory, ref = "Young")
-
-```
-
 # Introduction {#sec-intro}
 
+Obesity is an ever increasing issue in todays society. The Scottish Health Survey has been used to monitor the health of the Scottish population for many years now, with their aim being to identify health trends in the population, we will be examining the trends in obesity of the Scottish population in the years 2013-2016.
+
+There are many factors that can affect health trends and must be considered when inspecting the trends in obesity such as Age, Gender, Employment status and  Fruit and Veg intake. This report will look to answer the question of is there really a difference in obesity within these factors? And, is there a trend over the years of obesity?
+
 # Exploratory Analysis {#sec-EA}
+
+```{r}
+#| label: fig-obesityyear
+#| fig-cap: Proportion of obesity by Year
+proportionsyear <- df |>
+  group_by(Year, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(Year) |>
+  mutate(Proportion = Count/sum(Count))
+
+ggplot(proportionsyear, aes(x = factor(Year), y = Proportion, fill = Obese)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs(title = "Proportion of Obesity (Yes/No) by Year",
+       x = "Year",
+       y = "Proportion",
+       fill = "Obesity") +
+  theme_minimal()
+
+```
+
+@fig-obesityyear displays the proportion of Obesity by the each year the questionnaire has been taken. There appears to be very little if any difference in the change of obesity levels over the years.
+
+
+```{r}
+library(patchwork)
+
+#| label: fig-ages
+#| fig-cap: proportion of obesity by age categories
+
+##graph 1
+proportionsage <- df |>
+  group_by(AgeGroup, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(AgeGroup) |>
+  mutate(Proportion = Count/sum(Count))
+  
+
+p1 <- ggplot(proportionsage, aes(x = AgeGroup, y = Proportion, fill = Obese)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs(title = "Proportion of Obesity (Yes/No) by Age",
+       x = "Age",
+       y = "Proportion",
+       fill = "Obesity") +
+  theme_minimal()+
+  guides(x= guide_axis(angle = 90))
+
+##graph 2
+
+proportionsagec <- df |>
+  group_by(AgeCategory, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(AgeCategory) |>
+  mutate(Proportion = Count/sum(Count))
+
+p2 <- ggplot(proportionsagec, aes(x = AgeCategory, y = Proportion, fill = Obese)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs(title = "Proportion of Obesity (Yes/No) by Age Category",
+       x = "Age",
+       y = "Proportion",
+       fill = "Obesity") +
+  theme_minimal()
+```
+
+```{r}
+#| label: fig-ages
+#| fig-cap: Obesity proportions vs age groups and age categories
+
+p1+p2
+```
+
+
+We look at @fig-ages to see if there is a significant relationship between obesity and age, i.e. can the age of a person change their likelihood of being obese. The bar plot does indicate an increase in obesity as age increases however it then drops in the last category (75+). The difference in ages is made clearer in the right hand plot where the age catgeories have been refined, and we see that young people are least likely to be obese, middle aged are much more likely to be obese and elderly are the most likely to be obese.
+
+@fig-gender is a barplot being used to see if there is a difference in obesity dependent on the gender of a person. The plot shows there is actually a slight difference in gender and obesity levels. There is a larger proportion of women who are obese suggesting if gender is female they are slightly more likely to be obese than men. 
+
+```{r}
+#| label: fig-gender
+#| fig-cap: proportion of obesity by gender
+
+proportionsgender <- df |>
+  group_by(Sex, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(Sex) |>
+  mutate(Proportion = Count/sum(Count))
+
+ggplot(proportionsgender, aes(x = Sex, y = Proportion, fill = Obese)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs(title = "Proportion of Obesity (Yes/No) by Sex",
+       x = "Sex",
+       y = "Proportion",
+       fill = "Obesity") +
+  theme_minimal()
+```
+
+
+
+
+```{r}
+#| label: fig-social
+#| fig-cap: proportion of obesity by employment type
+
+
+proportionssocial <- df |>
+  group_by(Employment_Clean, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(Employment_Clean) |>
+  mutate(Proportion = Count/sum(Count))
+
+ggplot(proportionssocial, aes(x = Employment_Clean, y = Proportion, fill = Obese)) +
+  geom_bar(stat = "identity", position = "fill") +
+  labs(title = "Proportion of Obesity (Yes/No) by Employment Type",
+       x = "Employment Type",
+       y = "Proportion",
+       fill = "Obesity") +
+  guides(x= guide_axis(angle = 45))
+```
+
+@fig-social refers to the Obesity rates of those participating in the survey and their socio-economic status. This has been refined into three categories, 'employed/full time education', 'retired', 'unemployed/other'. We can see that the least amount of obesity occurs in the employed/full time education category, while the category with highest obesity rates is the unemployed/other category which is interesting when compared to the age graphs previously as we might have expected retired to have the highest rates as the older age catgories seemed to have higher obesity rates. 
+
+```{r}
+#| label: fig-FV
+#| fig-cap: The proportion of obesity vs if people consumed enough fruit or veg
+proportionsFV <- df |>
+  group_by(FV, Obese) |>
+  summarise(Count = n(), .groups = "drop") |>
+  group_by(FV) |>
+  mutate(Proportion = Count/sum(Count))
+
+ggplot(proportionsFV, aes(x= FV, y= Proportion, fill = Obese))+
+  geom_bar(stat = "identity", postition = "fill")+
+  labs(title = "Proportion of Obesity (Yes/No) by Fruit and Veg intake",
+       x = "Fruit and Veg Intake (Yes/No)",
+       y = "Proportion",
+       fill = "Obesity")
+```
+
+@fig-FV displays a barplot of Obesity rates vs if surveyed people ate the correct amount of fruit and vegetables in a day (lifestyle factors). We might have expected this to show there is a significant impact on obesity rates if people ate their '5 a day' however there seems to be no difference in obesity depending on a persons fruit and veg intake.
+
 
 # Formal Analysis {#sec-FA}
 

@@ -218,7 +218,48 @@ ggplot(proportionsFV, aes(x= FV, y= Proportion, fill = Obese))+
 
 # Formal Analysis {#sec-FA}
 
-We start by fitting the full regression model containing all explanatory variables. Since our response variable is binary, we fit a logistic regression model without interaction as we want to focus onthe individual effects of each of our covariates. The model can be written as:
+\# Formal Analysis {#sec-FA}
+
+# Formal Analysis {#sec-FA}
+
+First we check if obesity prevalence has infact changed over the years in general, not taking any other variables into account. We do that by fitting the following logistic regression model
+
+$$
+\begin{align}
+\mathrm{Obese}\sim Bernoulli(p_i)\\
+\mathrm{logit}(p_i)=\alpha +  \beta_{\text{year}}\cdot\text{year}
+\end{align}
+$$
+
+where $p_i$ is the probability of being obese
+
+$\alpha$ is the intercept (the baseline log-odds of obesity when all predictors are at their reference category) and
+
+$\beta_\text{year}$ is the coefficient for survey year
+
+```{r}
+#| label: tbl-summary1
+#| tbl-cap: Results of fitting a logistic regression to see if obesity prevalence changes over the years
+mod1 <- glm(Obese ~ Year, data = df, family = binomial)
+x<-as.data.frame(broom::tidy(mod1))
+x<-x[,c(1,2,5)]
+gt(x)
+```
+
+As indicated from our previous plots (@fig-obesityyear), Obesity prevalence has seemed to stay rather constant over the years, with a small non-statistically significant increase of 0.0056 in the log-odds of obesity with every passing year.
+
+We check the appropriateness of this model fit with the following plots (@fig-resid1).
+
+```{r}
+#| label: fig-resid1
+#| fig-cap: Plots to check model appropriateness
+library(performance)
+check_model(mod1, panel = TRUE)
+```
+
+idk what to say, need to complete this when I have more time
+
+We then fit the full regression model containing all explanatory variables. Since our response variable is binary, we fit a logistic regression model without interaction as we want to focus onthe individual effects of each of our covariates. The model can be written as:
 
 $$
 Obese \sim Bernoulli(p_i)

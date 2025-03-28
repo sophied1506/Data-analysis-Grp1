@@ -343,9 +343,24 @@ plot_model(step.model,
 
 
 
-CHECKING THE MODEL WITH AIC AND @fig-stepmodroc.
+CHECKING THE MODEL WITH AIC AND @fig-stepmoddiag AND @fig-stepmodroc.
 
-MAYBE CUT OR REWORD TO FOCUS ON THE REDUCED MODEL AND INTERPRETING THIS:
+```{r}
+#| echo: false
+#| fig-cap: GLM diagnostics for the obesity rates in Scotland
+#| label: fig-stepmoddiag
+#| fig-align: center
+
+library(performance)
+check_model(step.model, panel = TRUE)
+# IDK WHY IT IS SHOWING 5 PANELS INSTEAD OF 4???? IS IT POSSIBLE TO GET RID OF THE COLINEARITY MODEL OR IS THIS IMPORTANT? IF IMPORTANT ADD TO DESCRIPTION BELOW AS I HAVE IGNORED IT. 
+```
+
+@fig-stepmoddiag allows us to assess if our model assumptions are met. The posterior predictive check shows that the model-predicted intervals include the observed data points. The binned residuals plot highlight that the majority of points fall within the error bounds however this does not appear to be 95% of the data..............??????????? The influential observations plot shows that all points are inside the contour lines. Finally, the uniformity of residuals plot displays that the observed values do not deviate from the model expectations when using simulated residuals. This therefore demonstrates that our model is appropriately fitted to the data.
+
+
+
+MAYBE CUT AIC FOR FULL MODEL OR REWORD TO FOCUS ON THE REDUCED MODEL AND INTERPRETING THIS:
 The reduced model has an AIC of 17009.35 compared to the full model which has an AIC of 17011.99. This demonstrates that although the reduced model has a lower AIC, the difference is negligible. 
 
 ```{r}
@@ -364,11 +379,17 @@ roc_curve(pred_results,
           .fitted,
           event_level = "second") %>%
   autoplot()
+
+roc_value <- roc_auc(pred_results,
+        truth = Obese,
+        .fitted)
 ```
-@fig-stepmodroc demonstrates that 
 
+To assess how good the model is at separating if a person is obese or not, we will plot a ROC curve. This can be seen in @fig-stepmodroc. Since the ROC curve is fairly close to the diagonal line then this indicates that our model is only slighly better than random guessing. Ideally we would want to see the ROC curve closer to the top-left corner as this implies the model has high true positive rates and low false positive rates.
 
+Furthermore the ROC value is estimated at 0.432 which demonstrates...................... we need to improve model??
 
+EXPAND ABOVE????
 
 
 

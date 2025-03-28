@@ -1,10 +1,9 @@
 ---
 title: "Has Scottish Obesity Prevalence Changed over the Years and do Different Factors Effect this"
-author: "Jo Scott-Stephen, Eleanor Mills, Sophie Brown"
+author: "Jo Scott-Stephen, Eleanor Mills and Sophie Brown"
 execute: 
   echo: false
   eval: true
-  warning: false
 number-sections: true
 format:
   html:
@@ -12,40 +11,6 @@ format:
 editor_options: 
   chunk_output_type: console
 ---
-
-```{r}
-#| echo: false
-#| warning: false
-#| message: false
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-library(tidymodels)
-library(sjPlot)
-library(performance)
-library(kableExtra)
-library(gt)
-```
-
-
-```{r}
-df<-read.csv("DAProject3.csv")
-df$Sex<-as.factor(df$Sex)
-df$AgeGroup<-as.factor(df$AgeGroup)
-df$Veg<-as.factor(df$Veg)
-df$Fruit<-as.factor(df$Fruit)
-df$Obese<-as.factor(df$Obese)
-df$Employment<-as.factor(df$Employment)
-
-df$Employment_Clean<-as.factor(ifelse(df$Employment=="In full-time education"|df$Employment=="In paid employment, self-employed or on gov't training", "Employed/Full-Time Training or Education",ifelse(df$Employment=="Retired", "Retired", "Unemployed/Other")))
-
-df$FV<-as.factor(ifelse(df$Fruit=="Yes"|df$Veg=="Yes", "Yes", "No"))
-
-df$AgeCategory <- as.factor(ifelse(df$AgeGroup %in% c("16-24", "25-34"), "Young",
-ifelse(df$AgeGroup %in% c("35-44", "45-54", "55-64"), "Middle-aged",
-"Old")))
-df$AgeCategory <- relevel(df$AgeCategory, ref = "Young")
-```
 
 # Introduction {#sec-intro}
 
@@ -195,5 +160,245 @@ ggplot(proportionsFV, aes(x= FV, y= Proportion, fill = Obese))+
 
 # Formal Analysis {#sec-FA}
 
+Since there seems to be no significant change in the prevelance of obesity in Scotland over the years we will now investigate how socio-economic factors affect obseity rates. We start by fitting the full multiple regression model containing all explanatory variables.
+
+Since our response variable is binary, we fit a logistic regression model.
+
+$$
+Obese \sim Bernoulli(p_i)
+$$
+
+$$
+logit(p_i)= \alpha + \beta_{\text{sex}}\cdot\mathbb{I}_{\text{sex}} + \beta_{\text{year}}\cdot\text{Year} + \beta_{\text{fv}}\cdot\mathbb{I}_{\text{FV}} + \beta_{\text{middle-aged}}\cdot\mathbb{I}_{\text{middle-aged}} + \beta_{\text{old}}\cdot\mathbb{I}_{\text{old}} + \beta_{retired}\cdot\mathbb{I}_{\text{retired}} + \beta_{unemployed}\cdot\mathbb{I}_{\text{unemployed}}
+$$
+
+where $p_i$ is the probability of being obese and
+
+-   $\alpha$ is the intercept (the baseline log-odds of obesity when all predictors are at their reference category),
+
+-   $\beta_\text{sex}$ is the coefficient for sex,
+
+-   $\mathbb{I}_{\text{sex}}(x)$ is an indicator function such that
+
+$$
+    \mathbb{I}_{\mbox{male}}(x) =
+    \begin{cases}
+    1 & \mbox{if gender of } x \mbox{ is male}, \\
+    0 & \mbox{if gender of } x \mbox{ is female}.
+    \end{cases}
+$$
+
+-   $\beta_\text{year}$ is the coefficient for survey year,
+
+-   $\beta_\text{fv}$ is the coefficient for whether an individual consumes the daily intake of either fruit, vegetables or both,
+
+-   $\mathbb{I}_{\text{FV}}(x)$ is an indicator function such that
+
+$$
+    \mathbb{I}_{\mbox{FV}}(x) =
+    \begin{cases}
+    1 & \mbox{if } x \mbox{ consumes the recommended daily intake of fruit and/or vegetables}, \\
+    0 & \mbox{otherwise}.
+    \end{cases}
+$$
+
+-   $\beta_\text{middle-aged}$ is the coefficient for being middle-aged (35-64 years old),
+
+-   $\mathbb{I}_{\text{middle-aged}}(x)$ is an indicator function such that
+
+$$
+    \mathbb{I}_{\mbox{middle-aged}}(x) =
+    \begin{cases}
+    1 & \mbox{if } x \mbox{ is middle-aged (35-64 years old)}, \\
+    0 & \mbox{otherwise}.
+    \end{cases}
+$$
+
+-   $\beta_\text{old}$ is the coefficient for being old (65+ years),
+
+-   $\mathbb{I}_{\text{old}}(x)$ is an indicator function such that
+
+$$
+    \mathbb{I}_{\mbox{old}}(x) =
+    \begin{cases}
+    1 & \mbox{if } x \mbox{ is old (65+ years old)}, \\
+    0 & \mbox{otherwise}.
+    \end{cases}
+$$
+
+-   $\beta_\text{retired}$ is the coefficient for being retired,
+
+-   $\mathbb{I}_{\text{retired}}(x)$ is an indicator function such that
+
+$$
+    \mathbb{I}_{\mbox{retired}}(x) =
+    \begin{cases}
+    1 & \mbox{if } x \mbox{ is retired}, \\
+    0 & \mbox{otherwise}.
+    \end{cases}
+$$
+
+-   $\beta_\text{unemployed}$ is the coefficient for being unemployed or in another non-working status,
+
+-   $\mathbb{I}_{\text{unemployed}}(x)$ is an indicator function such that
+
+$$
+    \mathbb{I}_{\mbox{unemployed}}(x) =
+    \begin{cases}
+    1 & \mbox{if } x \mbox{ is unemployed or in another non-working status}, \\
+    0 & \mbox{otherwise}.
+    \end{cases}
+$$
+
+```{r}
+#| echo: false
+mod2 <- glm(Obese ~ Sex + Year + FV + AgeCategory + Employment_Clean, data = df, family = binomial)
+mod2_tidy <- mod2 %>% broom::tidy() %>% gt()
+AIC_mod2 <- AIC(mod2)
+```
+
+| Term               | Estimate (to 3 d.p.) | p-value (to 4 d.p.) |
+|--------------------|----------------------|---------------------|
+| Intercept          | 1.723                | 0.9591              |
+| Sex Male           | -0.104               | 0.0056              |
+| Year               | -0.001               | 0.9289              |
+| FV yes             | -0.070               | 0.2416              |
+| Middle-aged        | 0.570                | 0.0000              |
+| Old                | 0.631                | 0.0000              |
+| Retired            | 0.104                | 0.1528              |
+| Unemployed / Other | 0.394                | 0.0000              |
+
+: Estimates of the fitted model's coefficients. {#tbl-mod2}
+
+@tbl-mod2 displays the fitted values from out model. From this we can see that year, fruit and vegetables and retirement all have large p-values, signifying these are not significant. Most notably we can see that an increase in age ............. ADD INTERPRETATION OF MOD2 HERE.
+
+
+```{r}
+#| echo: false
+#| fig-cap: Predicted Probability of Obesity by Employment Status
+#| label: fig-prob-employ
+#| fig-align: center
+plot_model(mod2, 
+           type = "pred",
+           terms = "Employment_Clean",
+           axis.title = c("Employment Status", "Probability of Obesity"),
+           title = "")
+```
+@fig-prob-employ tells us ................
+
+```{r}
+#| echo: false
+#| fig-cap: Predicted Probability of Obesity by Age Group
+#| label: fig-prob-age
+#| fig-align: center
+plot_model(mod2, 
+           type = "pred",
+           terms = "AgeCategory",
+           axis.title = c("Age Category", "Probability of Obesity"),
+           title = "")
+```
+@fig-prob-age tells us ................
+
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-cap: Odds (Obesity)
+#| label: fig-odds
+#| fig-align: center
+plot_model(mod2,
+           show.values = TRUE,
+           title = "", 
+           show.p = FALSE, axis.lim = c(0.9, 1.95))
+```
+@fig-odds tells us .....................
+
+```{r}
+#| echo: false
+#| fig-cap: GLM diagnostics for the obesity rates in Scotland
+#| label: fig-mod2diag
+#| fig-align: center
+
+library(performance)
+check_model(mod2, panel = TRUE)
+# IDK WHY IT IS SHOWING 5 PANELS INSTEAD OF 4????
+```
+
+@fig-mod2diag allows us to assess if our model assumptions are met. The posterior predictive check shows that the model-predicted intervals include the observed data points. The binned residuals plot highlight that the majority of points fall within the error bounds. The influential observations plot shows that all points are inside the contour lines. Finally, the uniformity of residuals plot displays that the observed values do not deviate from the model expectations when using simulated residuals. This therefore demonstrates that our model is appropriately fitted to the data.
+
+```{r}
+#| echo: false
+#| fig-cap: ROC curve for full socioeconomic model
+#| label: fig-mod2roc
+#| fig-align: center
+pred_results <- mod2 %>%
+  augment(type.predict = c("response")) %>%
+  mutate(predicted_class = factor(ifelse(.fitted > 0.5, "Yes", "No")))
+
+roc_curve(pred_results,
+          truth = Obese,
+          .fitted,
+          event_level = "second") %>%
+  autoplot()
+```
+
+To assess how good the model is at separating if a person is obese or not, we will plot a ROC curve. This can be seen in @fig-mod2roc. Since the ROC curve is fairly close to the diagonal line then this indicates that our model is only slighly better than random guessing. Ideally we would want to see the ROC curve closer to the top-left corner as this implies the model has high true positive rates and low false positive rates.
+
+### POTENTIALLY CUT
+
+To see if this model can be improved we will undergo stepwise regression with backward selection to reduce the full model based on the AIC. In this case, the final model detailed below provides the lowest AIC.
+
+$$
+logit(p_i)= \alpha + \beta_{\text{sex}}\cdot\mathbb{I}_{\text{sex}} + \beta_{\text{middle-aged}}\cdot\mathbb{I}_{\text{middle-aged}} + \beta_{\text{old}}\cdot\mathbb{I}_{\text{old}} + \beta_{retired}\cdot\mathbb{I}_{\text{retired}} + \beta_{unemployed}\cdot\mathbb{I}_{\text{unemployed}}
+$$ The regression coefficients from the model are displayed in @tbl-stepmod.
+
+| Term               | Estimate (to 3 d.p.) | p-value (to 4 d.p.) |
+|--------------------|----------------------|---------------------|
+| Intercept          | -1.340               | 0.0000              |
+| Sex Male           | -0.101               | 0.0069              |
+| Middle-aged        | 0.565                | 0.0000              |
+| Old                | 0.625                | 0.0000              |
+| Retired            | 0.104                | 0.1551              |
+| Unemployed / Other | 0.401                | 0.0000              |
+
+: Estimates of the fitted model's coefficients. {#tbl-stepmod}
+
+```{r}
+#| echo: false
+step.model <- stepAIC(mod2, direction = "backward", trace = FALSE)
+Coefs <- round(coef(step.model), 3)
+AIC_stepmod <- step.model$anova[, 6]
+
+step.model_tidy <- step.model %>% broom::tidy() %>% gt()
+```
+
+However, the reduced model has an AIC of 17009.35 compared to the full model which has an AIC of 17011.99. This demonstrates that although the reduced model has a lower AIC, the difference is negligible. This can further be seen through the ROC curve @fig-stepmodroc displaying no significant differences to @fig-mod2roc.
+
+```{r}
+#| echo: false
+#| fig-cap: ROC curve for simpler socioeconomic model
+#| label: fig-stepmodroc
+#| fig-align: center
+# potentially cut
+
+pred_results <- step.model %>%
+  augment(type.predict = c("response")) %>%
+  mutate(predicted_class = factor(ifelse(.fitted > 0.5, "Yes", "No")))
+
+roc_curve(pred_results,
+          truth = Obese,
+          .fitted,
+          event_level = "second") %>%
+  autoplot()
+```
+
 # Conclusions {#sec-con}
 
+This report has investigated trends in obesity prevalence in Scotland over time and examined the impact of socio-economic factors using logistic regression modeling. The findings indicate that obesity rates have remained relatively stable, with no significant change over the years. Furthermore, our model suggests that key socio-economic factors, such as age and employment status, play a crucial role in obesity prevalence. Specifically, being younger and being employed, all else constant, is associated with lower odds of obesity. In contrast, factors such as fruit and vegetable consumption had minimal impact. This highlights the impact of socio-economic conditions on health and the need ...............................
+
+The model diagnostics confirm that our regression model is appropriately fitted to the data, with no major violations of model assumptions. However, the ROC curve suggests that the model’s predictive ability is only slightly better than random guessing, indicating that additional factors may be needed to better explain obesity prevalence.
+
+We also attempted to refine the model using stepwise regression. While the reduced model achieved a marginally lower AIC, the difference was negligible, and its predictive performance remained similar to the full model. This suggests that while some variables could be excluded without significant loss of explanatory power, the overall findings remain consistent.
+
+In conclusion, whilst obesity prevalence in Scotland has not changed significantly over time, socio-economic factors, particularly age and employment status, are important contributors. Future research could explore additional lifestyle, behavioral, and environmental factors to improve the predictive power of the model and gain deeper insights into obesity trends and interventions.

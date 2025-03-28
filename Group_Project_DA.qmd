@@ -14,9 +14,11 @@ editor_options:
 
 # Introduction {#sec-intro}
 
-Obesity is an ever increasing issue in todays society. The Scottish Health Survey has been used to monitor the health of the Scottish population for many years now, with their aim being to identify health trends in the population, we will be examining the trends in obesity of the Scottish population in the years 2013-2016.
+Obesity rates have been observed to be increasing in many developed countries. However it has been linked to numerous health issues, specifically cardiovascular issues, diabetes and cancer. With data supplied by the Scottish Health Survey, we will be examining the trends in obesity of the Scottish population in the years 2013-2016, to see if Scotland is following that trend.
 
-There are many factors that can affect health trends and must be considered when inspecting the trends in obesity such as Age, Gender, Employment status and  Fruit and Veg intake. This report will look to answer the question of is there really a difference in obesity within these factors? And, is there a trend over the years of obesity?
+Furthermore, we will investigate whether any specific socio-economic characteristics and lifestyle factors indicate a higher probability of obesity, to see, more generally, if there is truly a correlation between the way we live and our health.
+
+At first, we will investigate some exploratory data analysis ( Section 2 ), before conducting our formal analysis (Section 3) and eventually reaching a cnclusion and a discussion ( ?@sec-con )
 
 # Exploratory Analysis {#sec-EA}
 

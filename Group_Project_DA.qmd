@@ -24,6 +24,12 @@ library(sjPlot)
 library(performance)
 library(kableExtra)
 library(gt)
+library(tidyverse)
+library(gt)
+library(MASS)
+library(patchwork)
+library(moderndive)
+
 ```
 
 ```{r}
@@ -151,8 +157,6 @@ ggplot(proportionsgender, aes(x = Sex, y = Proportion, fill = Obese)) +
 ```
 
 
-
-
 ```{r}
 #| label: fig-social
 #| fig-cap: Proportion of Obesity by Employment Type
@@ -176,6 +180,7 @@ ggplot(proportionssocial, aes(x = Employment_Clean, y = Proportion, fill = Obese
 @fig-social refers to the Obesity rates of those participating in the survey and their socio-economic status. This has been refined into three categories, 'employed/full time education', 'retired', 'unemployed/other'. We can see that the least amount of obesity occurs in the employed/full time education category, while the category with highest obesity rates is the unemployed/other category which is interesting when compared to the age graphs previously as we might have expected retired to have the highest rates as the older age catgories seemed to have higher obesity rates. 
 
 ```{r}
+#| warning: false
 #| label: fig-FV
 #| fig-cap: The Proportion of Obesity Against Consumption of the Required Amount of Fruit or Vegetables
 proportionsFV <- df |>
@@ -196,7 +201,7 @@ ggplot(proportionsFV, aes(x= FV, y= Proportion, fill = Obese))+
 
 
 # Formal Analysis {#sec-FA}
-
+CHANGE THE INTRO SENTENCE TO EXPLAIN DOING FULL MODEL FIRST
 Since there seems to be no significant change in the prevelance of obesity in Scotland over the years we will now investigate how socio-economic factors affect obseity rates. We start by fitting the full multiple regression model containing all explanatory variables.
 
 Since our response variable is binary, we fit a logistic regression model.
@@ -294,101 +299,21 @@ mod2_tidy <- mod2 %>% broom::tidy() %>% gt()
 AIC_mod2 <- AIC(mod2)
 ```
 
-| Term               | Estimate (to 3 d.p.) | p-value (to 4 d.p.) |
-|--------------------|----------------------|---------------------|
-| Intercept          | 1.723                | 0.9591              |
-| Sex Male           | -0.104               | 0.0056              |
-| Year               | -0.001               | 0.9289              |
-| FV yes             | -0.070               | 0.2416              |
-| Middle-aged        | 0.570                | 0.0000              |
-| Old                | 0.631                | 0.0000              |
-| Retired            | 0.104                | 0.1528              |
-| Unemployed / Other | 0.394                | 0.0000              |
+Stepwise regression with backward selection will be used to determine whether the full model can be reduced based on the AIC. Hence, the model which results in the lowest AIC will result in the final model fitted to the data. In this case, the final model detailed below provides the lowest AIC. The regression coefficients from the model are displayed in @tbl-stepmod.
 
-: Estimates of the fitted model's coefficients. {#tbl-mod2}
-
-@tbl-mod2 displays the fitted values from out model. From this we can see that year, fruit and vegetables and retirement all have large p-values, signifying these are not significant. Most notably we can see that an increase in age ............. ADD INTERPRETATION OF MOD2 HERE.
-
-
-```{r}
-#| echo: false
-#| fig-cap: Predicted Probability of Obesity by Employment Status
-#| label: fig-prob-employ
-#| fig-align: center
-plot_model(mod2, 
-           type = "pred",
-           terms = "Employment_Clean",
-           axis.title = c("Employment Status", "Probability of Obesity"),
-           title = "")
-```
-@fig-prob-employ tells us ................
-
-```{r}
-#| echo: false
-#| fig-cap: Predicted Probability of Obesity by Age Group
-#| label: fig-prob-age
-#| fig-align: center
-plot_model(mod2, 
-           type = "pred",
-           terms = "AgeCategory",
-           axis.title = c("Age Category", "Probability of Obesity"),
-           title = "")
-```
-@fig-prob-age tells us ................
-
-
-```{r}
-#| echo: false
-#| warning: false
-#| message: false
-#| fig-cap: Odds (Obesity)
-#| label: fig-odds
-#| fig-align: center
-plot_model(mod2,
-           show.values = TRUE,
-           title = "", 
-           show.p = FALSE, axis.lim = c(0.9, 1.95))
-```
-@fig-odds tells us .....................
-
-```{r}
-#| echo: false
-#| fig-cap: GLM diagnostics for the obesity rates in Scotland
-#| label: fig-mod2diag
-#| fig-align: center
-
-library(performance)
-check_model(mod2, panel = TRUE)
-# IDK WHY IT IS SHOWING 5 PANELS INSTEAD OF 4????
-```
-
-@fig-mod2diag allows us to assess if our model assumptions are met. The posterior predictive check shows that the model-predicted intervals include the observed data points. The binned residuals plot highlight that the majority of points fall within the error bounds. The influential observations plot shows that all points are inside the contour lines. Finally, the uniformity of residuals plot displays that the observed values do not deviate from the model expectations when using simulated residuals. This therefore demonstrates that our model is appropriately fitted to the data.
-
-```{r}
-#| echo: false
-#| fig-cap: ROC curve for full socioeconomic model
-#| label: fig-mod2roc
-#| fig-align: center
-pred_results <- mod2 %>%
-  augment(type.predict = c("response")) %>%
-  mutate(predicted_class = factor(ifelse(.fitted > 0.5, "Yes", "No")))
-
-roc_curve(pred_results,
-          truth = Obese,
-          .fitted,
-          event_level = "second") %>%
-  autoplot()
-```
-
-To assess how good the model is at separating if a person is obese or not, we will plot a ROC curve. This can be seen in @fig-mod2roc. Since the ROC curve is fairly close to the diagonal line then this indicates that our model is only slighly better than random guessing. Ideally we would want to see the ROC curve closer to the top-left corner as this implies the model has high true positive rates and low false positive rates.
-
-### POTENTIALLY CUT
-
-To see if this model can be improved we will undergo stepwise regression with backward selection to reduce the full model based on the AIC. In this case, the final model detailed below provides the lowest AIC.
 
 $$
 logit(p_i)= \alpha + \beta_{\text{sex}}\cdot\mathbb{I}_{\text{sex}} + \beta_{\text{middle-aged}}\cdot\mathbb{I}_{\text{middle-aged}} + \beta_{\text{old}}\cdot\mathbb{I}_{\text{old}} + \beta_{retired}\cdot\mathbb{I}_{\text{retired}} + \beta_{unemployed}\cdot\mathbb{I}_{\text{unemployed}}
-$$ The regression coefficients from the model are displayed in @tbl-stepmod.
+$$ 
+
+```{r}
+#| echo: false
+step.model <- stepAIC(mod2, direction = "backward", trace = FALSE)
+Coefs <- round(coef(step.model), 3)
+AIC_stepmod <- step.model$anova[, 6]
+
+step.model_tidy <- step.model %>% broom::tidy() %>% gt()
+```
 
 | Term               | Estimate (to 3 d.p.) | p-value (to 4 d.p.) |
 |--------------------|----------------------|---------------------|
@@ -401,23 +326,34 @@ $$ The regression coefficients from the model are displayed in @tbl-stepmod.
 
 : Estimates of the fitted model's coefficients. {#tbl-stepmod}
 
+INTERPRETING THE MODEL AND SEEING THIS VISUALLY IN @fig-odds
 ```{r}
 #| echo: false
-step.model <- stepAIC(mod2, direction = "backward", trace = FALSE)
-Coefs <- round(coef(step.model), 3)
-AIC_stepmod <- step.model$anova[, 6]
-
-step.model_tidy <- step.model %>% broom::tidy() %>% gt()
+#| warning: false
+#| message: false
+#| fig-cap: Odds (Obesity)
+#| label: fig-odds
+#| fig-align: center
+plot_model(step.model,
+           show.values = TRUE,
+           title = "", 
+           show.p = FALSE, axis.lim = c(0.9, 1.95))
 ```
+@fig-odds tells us ..................... (FOCUS ON AGE AND EMPLOYMENT AS MOST SIGNIFICANT?)
 
-However, the reduced model has an AIC of 17009.35 compared to the full model which has an AIC of 17011.99. This demonstrates that although the reduced model has a lower AIC, the difference is negligible. This can further be seen through the ROC curve @fig-stepmodroc displaying no significant differences to @fig-mod2roc.
+
+
+CHECKING THE MODEL WITH AIC AND @fig-stepmodroc.
+
+MAYBE CUT OR REWORD TO FOCUS ON THE REDUCED MODEL AND INTERPRETING THIS:
+The reduced model has an AIC of 17009.35 compared to the full model which has an AIC of 17011.99. This demonstrates that although the reduced model has a lower AIC, the difference is negligible. 
 
 ```{r}
 #| echo: false
-#| fig-cap: ROC curve for simpler socioeconomic model
+#| fig-cap: ROC curve for Stepwise Regression Model
 #| label: fig-stepmodroc
 #| fig-align: center
-# potentially cut
+
 
 pred_results <- step.model %>%
   augment(type.predict = c("response")) %>%
@@ -429,8 +365,15 @@ roc_curve(pred_results,
           event_level = "second") %>%
   autoplot()
 ```
+@fig-stepmodroc demonstrates that 
+
+
+
+
+
 
 # Conclusions {#sec-con}
+REWRITE (CUT A BIT) AND MAKE SURE APPROPRIATE FOR THE CHANGES WE MADE IN THE FA SECTION. 
 
 This report has investigated trends in obesity prevalence in Scotland over time and examined the impact of socio-economic factors using logistic regression modeling. The findings indicate that obesity rates have remained relatively stable, with no significant change over the years. Furthermore, our model suggests that key socio-economic factors, such as age and employment status, play a crucial role in obesity prevalence. Specifically, being younger and being employed, all else constant, is associated with lower odds of obesity. In contrast, factors such as fruit and vegetable consumption had minimal impact. This highlights the impact of socio-economic conditions on health and the need ...............................
 

@@ -78,7 +78,7 @@ ggplot(proportionsyear, aes(x = factor(Year), y = Proportion, fill = Obese)) +
        x = "Year",
        y = "Proportion",
        fill = "Obesity") +
-  theme_minimal()
+  theme_minimal() 
 
 ```
 
@@ -106,7 +106,7 @@ p1 <- ggplot(proportionsage, aes(x = AgeGroup, y = Proportion, fill = Obese)) +
        y = "Proportion",
        fill = "Obesity") +
   theme_minimal()+
-  guides(x= guide_axis(angle = 90))
+  guides(x= guide_axis(angle = 90)) 
 
 ##graph 2
 
@@ -153,7 +153,7 @@ ggplot(proportionsgender, aes(x = Sex, y = Proportion, fill = Obese)) +
        x = "Sex",
        y = "Proportion",
        fill = "Obesity") +
-  theme_minimal()
+  theme_minimal() 
 ```
 
 
@@ -194,17 +194,15 @@ ggplot(proportionsFV, aes(x= FV, y= Proportion, fill = Obese))+
   labs(title = "Proportion of Obesity (Yes/No) by Fruit and Veg intake",
        x = "Fruit and Veg Intake (Yes/No)",
        y = "Proportion",
-       fill = "Obesity")
+       fill = "Obesity") 
 ```
 
 @fig-FV displays a barplot of Obesity rates vs if surveyed people ate the correct amount of fruit and vegetables in a day (lifestyle factors). We might have expected this to show there is a significant impact on obesity rates if people ate their '5 a day' however there seems to be no difference in obesity depending on a persons fruit and veg intake.
 
 
 # Formal Analysis {#sec-FA}
-CHANGE THE INTRO SENTENCE TO EXPLAIN DOING FULL MODEL FIRST
-Since there seems to be no significant change in the prevelance of obesity in Scotland over the years we will now investigate how socio-economic factors affect obseity rates. We start by fitting the full multiple regression model containing all explanatory variables.
-
-Since our response variable is binary, we fit a logistic regression model.
+We start by fitting the full regression model containing all explanatory variables. Since our response variable is binary, we fit a logistic regression model. The full model can be written as:
+MENTION WHY NOT DOING INTERACTION TERMS?
 
 $$
 Obese \sim Bernoulli(p_i)
@@ -299,6 +297,7 @@ mod2_tidy <- mod2 %>% broom::tidy() %>% gt()
 AIC_mod2 <- AIC(mod2)
 ```
 
+PERHAPS SLIGHTLY REWORD AS I COPIED MAJORITY FROM THE EXAMPLE REPORT IN WEEK 6?
 Stepwise regression with backward selection will be used to determine whether the full model can be reduced based on the AIC. Hence, the model which results in the lowest AIC will result in the final model fitted to the data. In this case, the final model detailed below provides the lowest AIC. The regression coefficients from the model are displayed in @tbl-stepmod.
 
 
@@ -353,7 +352,8 @@ CHECKING THE MODEL WITH AIC AND @fig-stepmoddiag AND @fig-stepmodroc.
 
 library(performance)
 check_model(step.model, panel = TRUE)
-# IDK WHY IT IS SHOWING 5 PANELS INSTEAD OF 4???? IS IT POSSIBLE TO GET RID OF THE COLINEARITY MODEL OR IS THIS IMPORTANT? IF IMPORTANT ADD TO DESCRIPTION BELOW AS I HAVE IGNORED IT. 
+
+# IDK WHY IT IS SHOWING 5 PANELS INSTEAD OF 4???? IS IT POSSIBLE TO GET RID OF THE COLINEARITY MODEL OR IS THIS IMPORTANT? IF IMPORTANT ADD TO DESCRIPTION BELOW AS I HAVE IGNORED IT. E.g. given the large number of explanatory variables it is good pratice to test for colinearity... 
 ```
 
 @fig-stepmoddiag allows us to assess if our model assumptions are met. The posterior predictive check shows that the model-predicted intervals include the observed data points. The binned residuals plot highlight that the majority of points fall within the error bounds however this does not appear to be 95% of the data..............??????????? The influential observations plot shows that all points are inside the contour lines. Finally, the uniformity of residuals plot displays that the observed values do not deviate from the model expectations when using simulated residuals. This therefore demonstrates that our model is appropriately fitted to the data.
@@ -387,7 +387,7 @@ roc_value <- roc_auc(pred_results,
 
 To assess how good the model is at separating if a person is obese or not, we will plot a ROC curve. This can be seen in @fig-stepmodroc. Since the ROC curve is fairly close to the diagonal line then this indicates that our model is only slighly better than random guessing. Ideally we would want to see the ROC curve closer to the top-left corner as this implies the model has high true positive rates and low false positive rates.
 
-Furthermore the ROC value is estimated at 0.432 which demonstrates...................... we need to improve model??
+Furthermore the ROC value is estimated at 0.432 which demonstrates............... we need to improve model??
 
 EXPAND ABOVE????
 
@@ -396,10 +396,11 @@ EXPAND ABOVE????
 # Conclusions {#sec-con}
 REWRITE (CUT A BIT) AND MAKE SURE APPROPRIATE FOR THE CHANGES WE MADE IN THE FA SECTION. 
 
-This report has investigated trends in obesity prevalence in Scotland over time and examined the impact of socio-economic factors using logistic regression modeling. The findings indicate that obesity rates have remained relatively stable, with no significant change over the years. Furthermore, our model suggests that key socio-economic factors, such as age and employment status, play a crucial role in obesity prevalence. Specifically, being younger and being employed, all else constant, is associated with lower odds of obesity. In contrast, factors such as fruit and vegetable consumption had minimal impact. This highlights the impact of socio-economic conditions on health and the need ...............................
+This report has investigated trends in obesity prevalence in Scotland over time and examined the impact of socio-economic factors using logistic regression modeling. The findings indicate that obesity rates have remained relatively stable, with no significant change over the years, ALL ELSE CONSTANT? Furthermore, our model suggests that key socio-economic factors, such as age and employment status, play a crucial role in obesity prevalence. Specifically, being younger and being employed, all else constant, is associated with lower odds of obesity. In contrast, factors such as fruit and vegetable consumption had minimal impact. This highlights the impact of socio-economic conditions on health and the need ........
 
 The model diagnostics confirm that our regression model is appropriately fitted to the data, with no major violations of model assumptions. However, the ROC curve suggests that the model’s predictive ability is only slightly better than random guessing, indicating that additional factors may be needed to better explain obesity prevalence.
 
+CUT BELOW NOW ONLY DID STEPWISE? INSTEAD FOCUS ON THE ELIMINATION OF YEAR AND FV:
 We also attempted to refine the model using stepwise regression. While the reduced model achieved a marginally lower AIC, the difference was negligible, and its predictive performance remained similar to the full model. This suggests that while some variables could be excluded without significant loss of explanatory power, the overall findings remain consistent.
 
 In conclusion, whilst obesity prevalence in Scotland has not changed significantly over time, socio-economic factors, particularly age and employment status, are important contributors. Future research could explore additional lifestyle, behavioral, and environmental factors to improve the predictive power of the model and gain deeper insights into obesity trends and interventions.

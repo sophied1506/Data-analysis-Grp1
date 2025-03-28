@@ -6,8 +6,12 @@ execute:
   eval: true
 number-sections: true
 format:
-  html:
+  pdf:
     embed-resources: true
+    margin-top: 0.7in
+    margin-left: 0.7in
+    margin-right: 0.7in
+    margin-bottom: 0.7in
 editor_options: 
   chunk_output_type: console
 ---
@@ -51,8 +55,6 @@ ifelse(df$AgeGroup %in% c("35-44", "45-54", "55-64"), "Middle-aged",
 df$AgeCategory <- relevel(df$AgeCategory, ref = "Young")
 ```
 
-
-
 # Introduction {#sec-intro}
 
 Obesity rates have been observed to be increasing in many developed countries. However it has been linked to numerous health issues, specifically cardiovascular issues, diabetes and cancer. With data supplied by the Scottish Health Survey, we will be examining the trends in obesity of the Scottish population in the years 2013-2016, to see if Scotland is following that trend.
@@ -66,6 +68,7 @@ First we will undergo exploratory data analysis in @sec-EA before conducting our
 ```{r}
 #| label: fig-obesityyear
 #| fig-cap: Proportion of Obesity by Year
+#| out.width: "50%"
 proportionsyear <- df |>
   group_by(Year, Obese) |>
   summarise(Count = n(), .groups = "drop") |>
@@ -74,7 +77,7 @@ proportionsyear <- df |>
 
 ggplot(proportionsyear, aes(x = factor(Year), y = Proportion, fill = Obese)) +
   geom_bar(stat = "identity", position = "fill") +
-  labs(title = "Proportion of Obesity (Yes/No) by Year",
+  labs(title = "Proportion of Obesity by Year",
        x = "Year",
        y = "Proportion",
        fill = "Obesity") +
@@ -83,7 +86,6 @@ ggplot(proportionsyear, aes(x = factor(Year), y = Proportion, fill = Obese)) +
 ```
 
 @fig-obesityyear displays the proportion of Obesity by the each year the questionnaire has been taken. There appears to be very little if any difference in the change of obesity levels over the years.
-
 
 ```{r}
 library(patchwork)
@@ -101,7 +103,7 @@ proportionsage <- df |>
 
 p1 <- ggplot(proportionsage, aes(x = AgeGroup, y = Proportion, fill = Obese)) +
   geom_bar(stat = "identity", position = "fill") +
-  labs(title = "Proportion of Obesity (Yes/No) by Age",
+  labs(title = "Proportion of Obesity by Age",
        x = "Age",
        y = "Proportion",
        fill = "Obesity") +
@@ -118,28 +120,31 @@ proportionsagec <- df |>
 
 p2 <- ggplot(proportionsagec, aes(x = AgeCategory, y = Proportion, fill = Obese)) +
   geom_bar(stat = "identity", position = "fill") +
-  labs(title = "Proportion of Obesity (Yes/No) by Age Category",
+  labs(
        x = "Age",
        y = "Proportion",
        fill = "Obesity") +
+  guides(x= guide_axis(angle = 90)) +
   theme_minimal()
 ```
 
 ```{r}
 #| label: fig-ages
 #| fig-cap: Obesity Proportions against Age Groups and Age Categories
+#| out.width: "70%"
 
 p1+p2
 ```
 
-
 We look at @fig-ages to see if there is a significant relationship between obesity and age, i.e. can the age of a person change their likelihood of being obese. The bar plot does indicate an increase in obesity as age increases however it then drops in the last category (75+). The difference in ages is made clearer in the right hand plot where the age catgeories have been refined, and we see that young people are least likely to be obese, middle aged are much more likely to be obese and elderly are the most likely to be obese.
 
-@fig-gender is a barplot being used to see if there is a difference in obesity dependent on the gender of a person. The plot shows there is actually a slight difference in gender and obesity levels. There is a larger proportion of women who are obese suggesting if gender is female they are slightly more likely to be obese than men. 
+@fig-gender is a barplot being used to see if there is a difference in obesity dependent on the gender of a person. The plot shows there is actually a slight difference in gender and obesity levels. There is a larger proportion of women who are obese suggesting if gender is female they are slightly more likely to be obese than men.
 
 ```{r}
 #| label: fig-gender
 #| fig-cap: Proportion of Obesity by Gender
+#| out.width: "50%"
+#| fig-pos: "H"
 
 proportionsgender <- df |>
   group_by(Sex, Obese) |>
@@ -149,18 +154,23 @@ proportionsgender <- df |>
 
 ggplot(proportionsgender, aes(x = Sex, y = Proportion, fill = Obese)) +
   geom_bar(stat = "identity", position = "fill") +
-  labs(title = "Proportion of Obesity (Yes/No) by Sex",
+  labs(title = "Proportion of Obesity by Sex",
        x = "Sex",
        y = "Proportion",
        fill = "Obesity") +
   theme_minimal() 
 ```
 
+@fig-social refers to the Obesity rates of those participating in the survey and their socio-economic status. This has been refined into three categories, 'employed/full time education', 'retired', 'unemployed/other'. We can see that the least amount of obesity occurs in the employed/full time education category, while the category with highest obesity rates is the unemployed/other category which is interesting when compared to the age graphs previously as we might have expected retired to have the highest rates as the older age catgories seemed to have higher obesity rates.
 
 ```{r}
 #| label: fig-social
 #| fig-cap: Proportion of Obesity by Employment Type
+#| out.width: "50%"
+#| fig-pos: "H"
 
+library(stringr)
+library(scales)
 
 proportionssocial <- df |>
   group_by(Employment_Clean, Obese) |>
@@ -170,19 +180,25 @@ proportionssocial <- df |>
 
 ggplot(proportionssocial, aes(x = Employment_Clean, y = Proportion, fill = Obese)) +
   geom_bar(stat = "identity", position = "fill") +
-  labs(title = "Proportion of Obesity (Yes/No) by Employment Type",
+  labs(title = "Proportion of Obesity by Employment Type",
        x = "Employment Type",
        y = "Proportion",
        fill = "Obesity") +
-  guides(x= guide_axis(angle = 45))
+   scale_x_discrete(labels = label_wrap(10))+
+  theme_minimal()
 ```
 
-@fig-social refers to the Obesity rates of those participating in the survey and their socio-economic status. This has been refined into three categories, 'employed/full time education', 'retired', 'unemployed/other'. We can see that the least amount of obesity occurs in the employed/full time education category, while the category with highest obesity rates is the unemployed/other category which is interesting when compared to the age graphs previously as we might have expected retired to have the highest rates as the older age catgories seemed to have higher obesity rates. 
+@fig-FV displays a barplot of Obesity rates vs if surveyed people ate the correct amount of fruit and vegetables in a day (lifestyle factors). We might have expected this to show there is a significant impact on obesity rates if people ate their '5 a day' however there seems to be no difference in obesity depending on a persons fruit and veg intake.
 
 ```{r}
 #| warning: false
 #| label: fig-FV
 #| fig-cap: The Proportion of Obesity Against Consumption of the Required Amount of Fruit or Vegetables
+#| out.width: "50%"
+
+#| fig-pos: "H"
+
+
 proportionsFV <- df |>
   group_by(FV, Obese) |>
   summarise(Count = n(), .groups = "drop") |>
@@ -191,18 +207,16 @@ proportionsFV <- df |>
 
 ggplot(proportionsFV, aes(x= FV, y= Proportion, fill = Obese))+
   geom_bar(stat = "identity", postition = "fill")+
-  labs(title = "Proportion of Obesity (Yes/No) by Fruit and Veg intake",
+  labs(title = "Proportion of Obesity by Fruit and Veg intake",
        x = "Fruit and Veg Intake (Yes/No)",
        y = "Proportion",
-       fill = "Obesity") 
+       fill = "Obesity") +
+  theme_minimal()
 ```
 
-@fig-FV displays a barplot of Obesity rates vs if surveyed people ate the correct amount of fruit and vegetables in a day (lifestyle factors). We might have expected this to show there is a significant impact on obesity rates if people ate their '5 a day' however there seems to be no difference in obesity depending on a persons fruit and veg intake.
-
-
 # Formal Analysis {#sec-FA}
-We start by fitting the full regression model containing all explanatory variables. Since our response variable is binary, we fit a logistic regression model. The full model can be written as:
-MENTION WHY NOT DOING INTERACTION TERMS?
+
+We start by fitting the full regression model containing all explanatory variables. Since our response variable is binary, we fit a logistic regression model. The full model can be written as: MENTION WHY NOT DOING INTERACTION TERMS?
 
 $$
 Obese \sim Bernoulli(p_i)
@@ -221,7 +235,7 @@ where $p_i$ is the probability of being obese and
 -   $\mathbb{I}_{\text{sex}}(x)$ is an indicator function such that
 
 $$
-    \mathbb{I}_{\mbox{male}}(x) =
+    \mathbb{I}_{\mbox{sex}}(x) =
     \begin{cases}
     1 & \mbox{if gender of } x \mbox{ is male}, \\
     0 & \mbox{if gender of } x \mbox{ is female}.
@@ -297,13 +311,11 @@ mod2_tidy <- mod2 %>% broom::tidy() %>% gt()
 AIC_mod2 <- AIC(mod2)
 ```
 
-PERHAPS SLIGHTLY REWORD AS I COPIED MAJORITY FROM THE EXAMPLE REPORT IN WEEK 6?
-Stepwise regression with backward selection will be used to determine whether the full model can be reduced based on the AIC. Hence, the model which results in the lowest AIC will result in the final model fitted to the data. In this case, the final model detailed below provides the lowest AIC. The regression coefficients from the model are displayed in @tbl-stepmod.
-
+PERHAPS SLIGHTLY REWORD AS I COPIED MAJORITY FROM THE EXAMPLE REPORT IN WEEK 6? Stepwise regression with backward selection will be used to determine whether the full model can be reduced based on the AIC. Hence, the model which results in the lowest AIC will result in the final model fitted to the data. In this case, the final model detailed below provides the lowest AIC. The regression coefficients from the model are displayed in @tbl-stepmod.
 
 $$
 logit(p_i)= \alpha + \beta_{\text{sex}}\cdot\mathbb{I}_{\text{sex}} + \beta_{\text{middle-aged}}\cdot\mathbb{I}_{\text{middle-aged}} + \beta_{\text{old}}\cdot\mathbb{I}_{\text{old}} + \beta_{retired}\cdot\mathbb{I}_{\text{retired}} + \beta_{unemployed}\cdot\mathbb{I}_{\text{unemployed}}
-$$ 
+$$
 
 ```{r}
 #| echo: false
@@ -314,18 +326,18 @@ AIC_stepmod <- step.model$anova[, 6]
 step.model_tidy <- step.model %>% broom::tidy() %>% gt()
 ```
 
-| Term               | Estimate (to 3 d.p.) | p-value (to 4 d.p.) |
-|--------------------|----------------------|---------------------|
-| Intercept          | -1.340               | 0.0000              |
-| Sex Male           | -0.101               | 0.0069              |
-| Middle-aged        | 0.565                | 0.0000              |
-| Old                | 0.625                | 0.0000              |
-| Retired            | 0.104                | 0.1551              |
-| Unemployed / Other | 0.401                | 0.0000              |
+::: {layout-ncol="2"}
+| Term               | Estimate  | p-value |
+|--------------------|-----------|---------|
+| Intercept          | -1.3402   | 0.0000  |
+| Sex Male           | -0.1014   | 0.0069  |
+| Middle-aged        | 0.5658    | 0.0000  |
+| Old                | 0.6249    | 0.0000  |
+| Retired            | 0.1036    | 0.1551  |
+| Unemployed / Other | 0.4006    | 0.0000  |
 
-: Estimates of the fitted model's coefficients. {#tbl-stepmod}
+: Estimates of the fitted model's coefficients to 4 d.p. {#tbl-stepmod}
 
-INTERPRETING THE MODEL AND SEEING THIS VISUALLY IN @fig-odds
 ```{r}
 #| echo: false
 #| warning: false
@@ -333,14 +345,15 @@ INTERPRETING THE MODEL AND SEEING THIS VISUALLY IN @fig-odds
 #| fig-cap: Odds (Obesity)
 #| label: fig-odds
 #| fig-align: center
+#| out.width: "90%"
 plot_model(step.model,
            show.values = TRUE,
            title = "", 
            show.p = FALSE, axis.lim = c(0.9, 1.95))
 ```
-@fig-odds tells us ..................... (FOCUS ON AGE AND EMPLOYMENT AS MOST SIGNIFICANT?)
+:::
 
-
+INTERPRETING THE MODEL AND SEEING THIS VISUALLY IN @fig-odds @fig-odds tells us ..................... (FOCUS ON AGE AND EMPLOYMENT AS MOST SIGNIFICANT?)
 
 CHECKING THE MODEL WITH AIC AND @fig-stepmoddiag AND @fig-stepmodroc.
 
@@ -349,6 +362,7 @@ CHECKING THE MODEL WITH AIC AND @fig-stepmoddiag AND @fig-stepmodroc.
 #| fig-cap: GLM diagnostics for the obesity rates in Scotland
 #| label: fig-stepmoddiag
 #| fig-align: center
+#| out.width: "50%"
 
 library(performance)
 check_model(step.model, panel = TRUE)
@@ -358,16 +372,14 @@ check_model(step.model, panel = TRUE)
 
 @fig-stepmoddiag allows us to assess if our model assumptions are met. The posterior predictive check shows that the model-predicted intervals include the observed data points. The binned residuals plot highlight that the majority of points fall within the error bounds however this does not appear to be 95% of the data..............??????????? The influential observations plot shows that all points are inside the contour lines. Finally, the uniformity of residuals plot displays that the observed values do not deviate from the model expectations when using simulated residuals. This therefore demonstrates that our model is appropriately fitted to the data.
 
+MAYBE CUT AIC FOR FULL MODEL OR REWORD TO FOCUS ON THE REDUCED MODEL AND INTERPRETING THIS: The reduced model has an AIC of 17009.35 compared to the full model which has an AIC of 17011.99. This demonstrates that although the reduced model has a lower AIC, the difference is negligible.
 
-
-MAYBE CUT AIC FOR FULL MODEL OR REWORD TO FOCUS ON THE REDUCED MODEL AND INTERPRETING THIS:
-The reduced model has an AIC of 17009.35 compared to the full model which has an AIC of 17011.99. This demonstrates that although the reduced model has a lower AIC, the difference is negligible. 
-
+::: {layout-ncol="2"}
 ```{r}
 #| echo: false
 #| fig-cap: ROC curve for Stepwise Regression Model
 #| label: fig-stepmodroc
-#| fig-align: center
+#| out.width: "90%"
 
 
 pred_results <- step.model %>%
@@ -386,21 +398,20 @@ roc_value <- roc_auc(pred_results,
 ```
 
 To assess how good the model is at separating if a person is obese or not, we will plot a ROC curve. This can be seen in @fig-stepmodroc. Since the ROC curve is fairly close to the diagonal line then this indicates that our model is only slighly better than random guessing. Ideally we would want to see the ROC curve closer to the top-left corner as this implies the model has high true positive rates and low false positive rates.
+:::
 
 Furthermore the ROC value is estimated at 0.432 which demonstrates............... we need to improve model??
 
 EXPAND ABOVE????
 
-
-
 # Conclusions {#sec-con}
-REWRITE (CUT A BIT) AND MAKE SURE APPROPRIATE FOR THE CHANGES WE MADE IN THE FA SECTION. 
+
+REWRITE (CUT A BIT) AND MAKE SURE APPROPRIATE FOR THE CHANGES WE MADE IN THE FA SECTION.
 
 This report has investigated trends in obesity prevalence in Scotland over time and examined the impact of socio-economic factors using logistic regression modeling. The findings indicate that obesity rates have remained relatively stable, with no significant change over the years, ALL ELSE CONSTANT? Furthermore, our model suggests that key socio-economic factors, such as age and employment status, play a crucial role in obesity prevalence. Specifically, being younger and being employed, all else constant, is associated with lower odds of obesity. In contrast, factors such as fruit and vegetable consumption had minimal impact. This highlights the impact of socio-economic conditions on health and the need ........
 
 The model diagnostics confirm that our regression model is appropriately fitted to the data, with no major violations of model assumptions. However, the ROC curve suggests that the model’s predictive ability is only slightly better than random guessing, indicating that additional factors may be needed to better explain obesity prevalence.
 
-CUT BELOW NOW ONLY DID STEPWISE? INSTEAD FOCUS ON THE ELIMINATION OF YEAR AND FV:
-We also attempted to refine the model using stepwise regression. While the reduced model achieved a marginally lower AIC, the difference was negligible, and its predictive performance remained similar to the full model. This suggests that while some variables could be excluded without significant loss of explanatory power, the overall findings remain consistent.
+CUT BELOW NOW ONLY DID STEPWISE? INSTEAD FOCUS ON THE ELIMINATION OF YEAR AND FV: We also attempted to refine the model using stepwise regression. While the reduced model achieved a marginally lower AIC, the difference was negligible, and its predictive performance remained similar to the full model. This suggests that while some variables could be excluded without significant loss of explanatory power, the overall findings remain consistent.
 
 In conclusion, whilst obesity prevalence in Scotland has not changed significantly over time, socio-economic factors, particularly age and employment status, are important contributors. Future research could explore additional lifestyle, behavioral, and environmental factors to improve the predictive power of the model and gain deeper insights into obesity trends and interventions.

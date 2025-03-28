@@ -53,13 +53,13 @@ Obesity rates have been observed to be increasing in many developed countries. H
 
 Furthermore, we will investigate whether any specific socio-economic characteristics and lifestyle factors indicate a higher probability of obesity, to see, more generally, if there is truly a correlation between the way we live and our health.
 
-At first, we will investigate some exploratory data analysis ( Section 2 ), before conducting our formal analysis (Section 3) and eventually reaching a cnclusion and a discussion ( ?@sec-con )
+First we will undergo exploratory data analysis in @sec-EA before conducting our formal analysis in @sec-FA and eventually reaching a conclusion and a discussion in @sec-con.
 
 # Exploratory Analysis {#sec-EA}
 
 ```{r}
 #| label: fig-obesityyear
-#| fig-cap: Proportion of obesity by Year
+#| fig-cap: Proportion of Obesity by Year
 proportionsyear <- df |>
   group_by(Year, Obese) |>
   summarise(Count = n(), .groups = "drop") |>
@@ -83,7 +83,7 @@ ggplot(proportionsyear, aes(x = factor(Year), y = Proportion, fill = Obese)) +
 library(patchwork)
 
 #| label: fig-ages
-#| fig-cap: proportion of obesity by age categories
+#| fig-cap: proportion of Obesity by Age Categories
 
 ##graph 1
 proportionsage <- df |>
@@ -121,7 +121,7 @@ p2 <- ggplot(proportionsagec, aes(x = AgeCategory, y = Proportion, fill = Obese)
 
 ```{r}
 #| label: fig-ages
-#| fig-cap: Obesity proportions vs age groups and age categories
+#| fig-cap: Obesity Proportions against Age Groups and Age Categories
 
 p1+p2
 ```
@@ -133,7 +133,7 @@ We look at @fig-ages to see if there is a significant relationship between obesi
 
 ```{r}
 #| label: fig-gender
-#| fig-cap: proportion of obesity by gender
+#| fig-cap: Proportion of Obesity by Gender
 
 proportionsgender <- df |>
   group_by(Sex, Obese) |>
@@ -155,7 +155,7 @@ ggplot(proportionsgender, aes(x = Sex, y = Proportion, fill = Obese)) +
 
 ```{r}
 #| label: fig-social
-#| fig-cap: proportion of obesity by employment type
+#| fig-cap: Proportion of Obesity by Employment Type
 
 
 proportionssocial <- df |>
@@ -177,7 +177,7 @@ ggplot(proportionssocial, aes(x = Employment_Clean, y = Proportion, fill = Obese
 
 ```{r}
 #| label: fig-FV
-#| fig-cap: The proportion of obesity vs if people consumed enough fruit or veg
+#| fig-cap: The Proportion of Obesity Against Consumption of the Required Amount of Fruit or Vegetables
 proportionsFV <- df |>
   group_by(FV, Obese) |>
   summarise(Count = n(), .groups = "drop") |>

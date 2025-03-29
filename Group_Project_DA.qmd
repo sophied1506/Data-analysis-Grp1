@@ -1,5 +1,5 @@
 ---
-title: "Has Scottish Obesity Prevalence Changed over the Years and do Different Factors Effect this"
+title: "Has Obesity Prevalence in Scotland Changed Over Time, and What Factors Influence It?"
 author: "Jo Scott-Stephen, Eleanor Mills and Sophie Brown"
 execute: 
   echo: false
@@ -87,9 +87,9 @@ ggplot(proportionsyear, aes(x = factor(Year), y = Proportion, fill = Obese)) +
 
 ```
 
-@fig-obesityyear displays the proportion of Obesity by the each year the questionnaire has been taken. There appears to be very little if any difference in the change of obesity levels over the years.
+@fig-obesityyear displays the proportion of obesity by the each year the questionnaire has been taken. There appears to be very little if any difference in the change of obesity levels over the years.
 
-We then investigate the effect of certain lifestyle factors and socioeconomic status on obesity rates
+We then investigate the effect of certain lifestyle factors and socioeconomic status on obesity rates.
 
 ```{r}
 library(patchwork)
@@ -163,7 +163,7 @@ ggplot(proportionsgender, aes(x = Sex, y = Proportion, fill = Obese)) +
   theme_minimal() 
 ```
 
-Then, using \@fig-social we invesitugae the impact of employment status on obesity rates. We have refined employment status into three categories, 'employed/full time education', 'retired', 'unemployed/other'. We can see that the least amount of obesity occurs in the employed/full time education category, while the category with highest obesity rates is the unemployed/other category which is interesting as from the previous graphs looking at the impact of age, we would have expected that those who are retired to have the highest obesity rates, however perhaps the slight drop-off that we observed for those over 75 has effected this.
+Then, using @fig-social we invesitugae the impact of employment status on obesity rates. We have refined employment status into three categories, 'employed/full time education', 'retired', 'unemployed/other'. We can see that the least amount of obesity occurs in the employed/full time education category, while the category with highest obesity rates is the unemployed/other category which is interesting as from the previous graphs looking at the impact of age, we would have expected that those who are retired to have the highest obesity rates, however perhaps the slight drop-off that we observed for those over 75 has effected this.
 
 ```{r}
 #| label: fig-social
@@ -190,7 +190,7 @@ ggplot(proportionssocial, aes(x = Employment_Clean, y = Proportion, fill = Obese
   theme_minimal()
 ```
 
-We then investigate the effect of people's dietary choices. \@fig-FV displays a bar plot of Obesity rates vs if surveyed people ate the correct amount of fruit and vegetables in a day (lifestyle factors). We might have expected this to show there is a significant impact on obesity rates if people ate their '5 a day' however there seems to be no difference in obesity depending on a persons fruit and veg intake.
+We then investigate the effect of people's dietary choices. @fig-FV displays a bar plot of Obesity rates vs if surveyed people ate the correct amount of fruit and vegetables in a day (lifestyle factors). We might have expected this to show there is a significant impact on obesity rates if people ate their '5 a day' however there seems to be no difference in obesity depending on a persons fruit and veg intake.
 
 ```{r}
 #| warning: false

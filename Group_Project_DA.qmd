@@ -12,7 +12,6 @@ format:
     margin-left: 0.7in
     margin-right: 0.7in
     margin-bottom: 0.7in
-
 editor_options: 
   chunk_output_type: console
 ---
@@ -134,7 +133,7 @@ p2 <- ggplot(proportionsagec, aes(x = AgeCategory, y = Proportion, fill = Obese)
 ```{r}
 #| label: fig-ages
 #| fig-cap: Obesity Proportions against Age (left) and Age Categories (right)
-#| out.width: "65%"
+#| out.width: "70%"
 
 p1+p2
 ```
@@ -164,7 +163,7 @@ ggplot(proportionsgender, aes(x = Sex, y = Proportion, fill = Obese)) +
   theme_minimal() 
 ```
 
-Then, using @fig-social we invesitugae the impact of employment status on obesity rates. We have refined employment status into three categories, 'employed/full time education', 'retired', 'unemployed/other'. We can see that the least amount of obesity occurs in the employed/full time education category, while the category with highest obesity rates is the unemployed/other category which is interesting as from the previous graphs looking at the impact of age, we would have expected that those who are retired to have the highest obesity rates, however perhaps the slight drop-off that we observed for those over 75 has effected this.
+Then, using \@fig-social we invesitugae the impact of employment status on obesity rates. We have refined employment status into three categories, 'employed/full time education', 'retired', 'unemployed/other'. We can see that the least amount of obesity occurs in the employed/full time education category, while the category with highest obesity rates is the unemployed/other category which is interesting as from the previous graphs looking at the impact of age, we would have expected that those who are retired to have the highest obesity rates, however perhaps the slight drop-off that we observed for those over 75 has effected this.
 
 ```{r}
 #| label: fig-social
@@ -191,13 +190,13 @@ ggplot(proportionssocial, aes(x = Employment_Clean, y = Proportion, fill = Obese
   theme_minimal()
 ```
 
-We then investigate the effect of people's dietary choices. @fig-FV displays a bar plot of Obesity rates vs if surveyed people ate the correct amount of fruit and vegetables in a day (lifestyle factors). We might have expected this to show there is a significant impact on obesity rates if people ate their '5 a day' however there seems to be no difference in obesity depending on a persons fruit and veg intake.
+We then investigate the effect of people's dietary choices. \@fig-FV displays a bar plot of Obesity rates vs if surveyed people ate the correct amount of fruit and vegetables in a day (lifestyle factors). We might have expected this to show there is a significant impact on obesity rates if people ate their '5 a day' however there seems to be no difference in obesity depending on a persons fruit and veg intake.
 
 ```{r}
 #| warning: false
 #| label: fig-FV
 #| fig-cap: The Proportion of Obesity Against Consumption of the Required Amount of Fruit or Vegetables
-#| out.width: "45%"
+#| out.width: "50%"
 
 #| fig-pos: "H"
 
@@ -349,16 +348,21 @@ step.model_tidy <- step.model %>% broom::tidy() %>% gt()
 ```
 
 ::: {layout-ncol="2"}
-| Term               | Estimate | p-value |
-|--------------------|----------|---------|
-| Intercept          | -1.3402  | 0.0000  |
-| Male               | -0.1014  | 0.0069  |
-| Middle-aged        | 0.5658   | 0.0000  |
-| Old                | 0.6249   | 0.0000  |
-| Retired            | 0.1036   | 0.1551  |
-| Unemployed / Other | 0.4006   | 0.0000  |
+| Term                                  | Estimate | p-value |
+|---------------------------------------|----------|---------|
+| Intercept                             | -1.3402  | 0.0000  |
+| Sex: Male                             | -0.1014  | 0.0069  |
+| Age Category: Middle-aged             | 0.5658   | 0.0000  |
+| Age Catergory: Old                    | 0.6249   | 0.0000  |
+| Employment Status: Retired            | 0.1036   | 0.1551  |
+| Employment Status: Unemployed / Other | 0.4006   | 0.0000  |
 
 : Estimates of the fitted model's coefficients to 4 d.p. {#tbl-stepmod}
+:::
+
+From @tbl-stepmod we see that all the covariates apart from being retired are significant, meaning sex, age and being unemployed (not retired) all effect obesity rates. In particular age is seen to be extremely significant. In Scotland Being classified as middle-aged causes an increase in log-odds of 0.5658 (76% increase in odds) while being classified as old causes an increase of 0.6248 in log-odds (87% increase in the odds) of being obese compared to young people, holding all else constant. Also, when you hold all else constant there is a significant increase in the log-odds of obesity of 0.4006 (or a 49% increase in the odds of obesity) associated with being unemployed. Furthermore, we have a significant decrease in log-odds of being obese of 0.1014 (10% decrease in the odds) associated with being male rather than female. All of which agrees with our previous plots seen in @sec-EA .
+
+These results can be visualised in @fig-odds , which visualises our odds ratios. We note that the figure agrees with our previous conclusion that being retired does not significantly impact the likelihood that someone is obese.
 
 ```{r}
 #| echo: false
@@ -373,15 +377,23 @@ plot_model(step.model,
            title = "", 
            show.p = FALSE, axis.lim = c(0.9, 1.95))
 ```
-:::
-
-From @tbl-stepmod we see that all the covariates apart from being retired are significant, meaning sex, age and being unemployed (not retired) all effect obesity rates. In particular age is seen to be extremely significant. Being classified as middle-aged causes an increased log-odds of 0.5658 while being classified as old causes an increased log-odds of 0.631 of being obese compared to young people. There is also a significant increase in the log-odds of obesity of 0.4006 associated with being unemployed. Furthermore, we have a significant decrease in log-odds of being obese of 0.1014 associated with being male rather than female. All of which agrees with our previous plots.
-
-These results can be visualised in @fig-odds , which visualises our odds ratios. We note that the figure agrees with our previous conclusion that being retired does not significantly impact the likelihood that someone is obese.
 
 We then check the model fit with @fig-stepmoddiag and also see how accurately it predicts obesity with @fig-stepmodroc.
 
-![Model Diagnostic Plots](images/Rplot.png){#fig-stepmoddiag}
+```{r}
+#| echo: false
+#| eval: false
+#| fig-align: center
+#| out.width: "50%"
+
+library(performance)
+check_model(step.model, panel = TRUE)
+
+
+# IDK WHY IT IS SHOWING 5 PANELS INSTEAD OF 4???? IS IT POSSIBLE TO GET RID OF THE COLINEARITY MODEL OR IS THIS IMPORTANT? IF IMPORTANT ADD TO DESCRIPTION BELOW AS I HAVE IGNORED IT. E.g. given the large number of explanatory variables it is good pratice to test for colinearity... 
+```
+
+![GLM diagnostic plots for obesity in Scotland {#fig-stepmoddiag}](Rplot1.png){fig-align="center" width="472"}
 
 @fig-stepmoddiag allows us to assess if our model assumptions are met. From the plots it seems that our model predicted intervals include the observed data points and none of these points are deemed influential. Furthermore, our residuals seem fairly uniform. However, over half our binned residuals lie outwith the error bounds, indicating we have an ill-fitted model.
 
@@ -394,7 +406,6 @@ We still go on to check how well the model predicts obesity with @fig-stepmodroc
 #| echo: false
 #| fig-cap: ROC curve for Stepwise Regression Model
 #| label: fig-stepmodroc
-#| fig-pos: "H"
 #| out.width: "90%"
 
 
@@ -411,9 +422,9 @@ roc_curve(pred_results,
 roc_value <- roc_auc(pred_results,
         truth = Obese, .fitted)
 ```
+:::
 
 The ROC curve seen in @fig-stepmodroc is fairly close to the diagonal line then this indicates that our model is only slightly better than random guessing, again indicating a poor model is fitted.
-:::
 
 # Conclusions {#sec-con}
 
